@@ -99,6 +99,8 @@ namespace TrainerMod
                 .Add("player_additem", $"Gives the player an item.\n\nUsage: player_additem <item> [count] [quality]\n- item: the item ID (use the 'list_items' command to see a list).\n- count (optional): how many of the item to give.\n- quality (optional): one of {Object.lowQuality} (normal), {Object.medQuality} (silver), {Object.highQuality} (gold), or {Object.bestQuality} (iridium).", this.HandleCommand)
                 .Add("player_addweapon", "Gives the player a weapon.\n\nUsage: player_addweapon <item>\n- item: the weapon ID (use the 'list_items' command to see a list).", this.HandleCommand)
                 .Add("player_addring", "Gives the player a ring.\n\nUsage: player_addring <item>\n- item: the ring ID (use the 'list_items' command to see a list).", this.HandleCommand)
+                .Add("player_addwallpaper", "Gives the player a wallpaper.\n\nUsage: player_addwallpaper <wallpaper>\n- wallpaper: the wallpaper ID (ranges from 0 to 111).", this.HandleCommand)
+                .Add("player_addflooring", "Gives the player a flooring.\n\nUsage: player_addflooring <flooring>\n- flooring: the flooring ID (ranges from 0 to 39).", this.HandleCommand)
 
                 .Add("list_items", "Lists and searches items in the game data.\n\nUsage: list_items [search]\n- search (optional): an arbitrary search string to filter by.", this.HandleCommand)
 
@@ -704,6 +706,31 @@ namespace TrainerMod
                         }
                         else
                             this.Monitor.Log("<item> is invalid", LogLevel.Error);
+                    }
+                    else
+                        this.LogArgumentsInvalid(command);
+                    break;
+
+                case "player_addwallpaper":
+                case "player_addflooring":
+                    if (args.Any())
+                    {
+                        string type = command.Substring(10);
+                        int wallpaperID;
+                        if (int.TryParse(args[0], out wallpaperID))
+                        {
+                            int upperID = type == "wallpaper" ? 111 : 39;
+                            if (wallpaperID < 0 || wallpaperID > upperID)
+                                this.Monitor.Log($"There is no such {type} ID (must be between 0 and {upperID}).", LogLevel.Error);
+                            else
+                            {
+                                Wallpaper wallpaper = new Wallpaper(wallpaperID, type == "flooring" );
+                                Game1.player.addItemByMenuIfNecessary(wallpaper);
+                                this.Monitor.Log($"OK, added {type} {wallpaperID} to your inventory.", LogLevel.Info);
+                            }
+                        }
+                        else
+                            this.Monitor.Log($"<{type}> is invalid", LogLevel.Error);
                     }
                     else
                         this.LogArgumentsInvalid(command);
