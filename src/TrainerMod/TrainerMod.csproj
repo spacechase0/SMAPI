@@ -99,6 +99,8 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <Import Condition="$(OS) != 'Windows_NT' AND Exists('$(HOME)\stardewvalley.targets')" Project="$(HOME)\stardewvalley.targets" />
+  <Import Condition="$(OS) == 'Windows_NT' AND Exists('$(USERPROFILE)\stardewvalley.targets')" Project="$(USERPROFILE)\stardewvalley.targets" />
   <Import Project="$(SolutionDir)\crossplatform.targets" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
