@@ -19,6 +19,9 @@ using StardewValley.Menus;
 using StardewValley.Tools;
 using xTile.Dimensions;
 using xTile.Layers;
+#if SMAPI_1_x
+using SFarmer = StardewValley.Farmer;
+#endif
 
 namespace StardewModdingAPI.Framework
 {
