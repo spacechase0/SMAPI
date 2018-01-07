@@ -104,6 +104,9 @@ namespace StardewModdingAPI.Framework.ModLoading
                         assembly.Definition.Write(outStream);
                         byte[] bytes = outStream.ToArray();
                         lastAssembly = Assembly.Load(bytes);
+                        FileStream fs = new FileStream("out.dll",FileMode.CreateNew);
+                        fs.Write(bytes, 0, bytes.Length);
+                        fs.Close();
                     }
                 }
                 else
@@ -181,6 +184,72 @@ namespace StardewModdingAPI.Framework.ModLoading
             yield return new AssemblyParseResult(file, assembly, AssemblyLoadStatus.Okay);
         }
 
+        void func(Mono.Cecil.CustomAttributeArgument c)
+        {
+            if (c.Type.FullName == "System.Type")
+                ChangeTypeScope((TypeReference)c.Value);
+        }
+        void func(Mono.Cecil.CustomAttributeNamedArgument c)
+        {
+            func(c.Argument);
+        }
+        void func(Mono.Cecil.CustomAttribute c)
+        {
+            foreach (var a in c.ConstructorArguments)
+                func(a);
+            foreach (var f in c.Fields)
+                func(f);
+        }
+        void func(Mono.Cecil.FieldDefinition f)
+        {
+            foreach (var c in f.CustomAttributes)
+                func(c);
+        }
+        void func(Mono.Cecil.ParameterDefinition m)
+        {
+            foreach (var c in m.CustomAttributes)
+                func(c);
+        }
+        void func(Mono.Cecil.MethodDefinition m)
+        {
+            foreach (var c in m.CustomAttributes)
+                func(c);
+            foreach (var p in m.Parameters)
+                func(p);
+        }
+        void func(Mono.Cecil.PropertyDefinition p)
+        {
+            foreach (var c in p.CustomAttributes)
+                func(c);
+            func(p.GetMethod);
+            func(p.SetMethod);
+        }
+        void func(Mono.Cecil.EventDefinition e)
+        {
+            foreach (var c in e.CustomAttributes)
+                func(c);
+        }
+        void func(Mono.Cecil.TypeDefinition t)
+        {
+            foreach (var c in t.CustomAttributes)
+                func(c);
+            foreach (var f in t.Fields)
+                func(f);
+            foreach (var m in t.Methods)
+                func(m);
+            foreach (var p in t.Properties)
+                func(p);
+            foreach (var e in t.Events)
+                func(e);
+            foreach (var n in t.NestedTypes)
+                func(n);
+        }
+        void func(Mono.Cecil.ModuleDefinition m)
+        {
+            foreach (var t in m.Types)
+                func(t);
+        }
+
         /****
         ** Assembly rewriting
         ****/
@@ -220,6 +289,8 @@ namespace StardewModdingAPI.Framework.ModLoading
                 IEnumerable<TypeReference> typeReferences = module.GetTypeReferences().OrderBy(p => p.FullName);
                 foreach (TypeReference type in typeReferences)
                     this.ChangeTypeScope(type);
+
+                func(module);
             }
 
             // find (and optionally rewrite) incompatible instructions
