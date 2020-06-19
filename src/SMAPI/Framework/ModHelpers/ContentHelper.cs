@@ -97,7 +97,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                         return this.GameContentManager.Load<T>(key, this.CurrentLocaleConstant, useCache: false);
 
                     case ContentSource.ModFolder:
-                        return this.ModContentManager.Load<T>(key, Constants.DefaultLanguage, useCache: false);
+                        return this.ModContentManager.Load<T>(key, GameConstants.DefaultLanguage, useCache: false);
 
                     default:
                         throw new SContentLoadException($"{this.ModName} failed loading content asset '{key}' from {source}: unknown content source '{source}'.");
@@ -174,7 +174,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             if (data == null)
                 throw new ArgumentNullException(nameof(data), "Can't get a patch helper for a null value.");
 
-            assetName ??= $"temp/{Guid.NewGuid():N}";
+            assetName = assetName ?? $"temp/{Guid.NewGuid():N}";
             return new AssetDataForObject(this.CurrentLocale, assetName, data, this.NormalizeAssetName);
         }
 

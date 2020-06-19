@@ -45,8 +45,8 @@ namespace StardewModdingAPI.Framework.Content
             {
                 Rectangle sourceBounds = this.GetMapArea(source);
                 Rectangle targetBounds = this.GetMapArea(target);
-                sourceArea ??= new Rectangle(0, 0, sourceBounds.Width, sourceBounds.Height);
-                targetArea ??= new Rectangle(0, 0, Math.Min(sourceArea.Value.Width, targetBounds.Width), Math.Min(sourceArea.Value.Height, targetBounds.Height));
+                sourceArea = sourceArea ?? new Rectangle(0, 0, sourceBounds.Width, sourceBounds.Height);
+                targetArea = targetArea ?? new Rectangle(0, 0, Math.Min(sourceArea.Value.Width, targetBounds.Width), Math.Min(sourceArea.Value.Height, targetBounds.Height));
 
                 // validate
                 if (sourceArea.Value.X < 0 || sourceArea.Value.Y < 0 || sourceArea.Value.Right > sourceBounds.Width || sourceArea.Value.Bottom > sourceBounds.Height)

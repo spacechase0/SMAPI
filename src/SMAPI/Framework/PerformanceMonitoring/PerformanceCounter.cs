@@ -85,7 +85,7 @@ namespace StardewModdingAPI.Framework.PerformanceMonitoring
         /// <param name="endTime">The end time for the <paramref name="range"/>, or null for the current time.</param>
         public PerformanceCounterEntry? GetPeak(TimeSpan range, DateTime? endTime = null)
         {
-            endTime ??= DateTime.UtcNow;
+            endTime = endTime ?? DateTime.UtcNow;
             DateTime startTime = endTime.Value.Subtract(range);
 
             return this.Entries
@@ -108,7 +108,7 @@ namespace StardewModdingAPI.Framework.PerformanceMonitoring
         /// <param name="endTime">The end time for the <paramref name="range"/>, or null for the current time.</param>
         public double GetAverage(TimeSpan range, DateTime? endTime = null)
         {
-            endTime ??= DateTime.UtcNow;
+            endTime = endTime ?? DateTime.UtcNow;
             DateTime startTime = endTime.Value.Subtract(range);
 
             double[] entries = this.Entries

@@ -434,7 +434,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         /// <returns>The formatted milliseconds.</returns>
         private string FormatMilliseconds(double? milliseconds, double? thresholdMilliseconds = null)
         {
-            thresholdMilliseconds ??= 1;
+            thresholdMilliseconds = thresholdMilliseconds ?? 1;
             return milliseconds != null && milliseconds >= thresholdMilliseconds
                    ? ((double)milliseconds).ToString("F2")
                    : "-";

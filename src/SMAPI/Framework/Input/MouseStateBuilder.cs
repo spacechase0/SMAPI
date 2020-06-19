@@ -43,7 +43,8 @@ namespace StardewModdingAPI.Framework.Input
         /// <param name="state">The state from which to reset, or <c>null</c> to get the latest state.</param>
         public MouseStateBuilder Reset(MouseState? state = null)
         {
-            this.State = state ??= Mouse.GetState();
+            state = state ?? Mouse.GetState();
+            this.State = state;
 
             this.ButtonStates = new Dictionary<SButton, ButtonState>
             {
@@ -89,7 +90,7 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>Get the equivalent state.</summary>
         public MouseState GetState()
         {
-            this.State ??= new MouseState(
+            this.State = this.State ?? new MouseState(
                 x: this.X,
                 y: this.Y,
                 scrollWheel: this.ScrollWheelValue,

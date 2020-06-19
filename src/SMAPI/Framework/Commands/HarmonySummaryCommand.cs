@@ -45,7 +45,17 @@ namespace StardewModdingAPI.Framework.Commands
                     foreach (var ownerGroup in match.PatchTypesByOwner.OrderBy(p => p.Key))
                     {
                         var sortedTypes = ownerGroup.Value
-                            .OrderBy(p => p switch { PatchType.Prefix => 0, PatchType.Postfix => 1, PatchType.Finalizer => 2, PatchType.Transpiler => 3, _ => 4 });
+                            .OrderBy(p =>
+                            {
+                                switch ( p )
+                                {
+                                    case PatchType.Prefix: return 0;
+                                    case PatchType.Postfix: return 1;
+                                    case PatchType.Finalizer: return 2;
+                                    case PatchType.Transpiler: return 3;
+                                    default: return 4;
+                                }
+                            } );
 
                         result.AppendLine($"      - {ownerGroup.Key} ({string.Join(", ", sortedTypes).ToLower()})");
                     }

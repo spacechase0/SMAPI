@@ -8,6 +8,7 @@ using System.Threading;
 #if SMAPI_FOR_WINDOWS
 #endif
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Toolkit.Utilities;
 
 [assembly: InternalsVisibleTo("SMAPI.Tests")]
@@ -25,8 +26,7 @@ namespace StardewModdingAPI
         /// <remarks>We can't use <see cref="Constants.ExecutionPath"/> directly, since <see cref="Constants"/> depends on DLLs loaded from this folder.</remarks>
         [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "The assembly location is never null in this context.")]
         internal static readonly string DllSearchPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "smapi-internal");
-
-
+        
         /*********
         ** Public methods
         *********/
@@ -37,9 +37,15 @@ namespace StardewModdingAPI
             try
             {
                 AppDomain.CurrentDomain.AssemblyResolve += Program.CurrentDomain_AssemblyResolve;
+
+                SPreCore preCore = new SPreCore( args );
+
+                GameRewriter.RewriteAndLoad(preCore.ModRegistry);
+
                 Program.AssertGamePresent();
                 Program.AssertGameVersion();
-                Program.Start(args);
+
+                Program.Start(preCore);
             }
             catch (BadImageFormatException ex) when (ex.FileName == "StardewValley" || ex.FileName == "Stardew Valley") // NOTE: don't use StardewModdingAPI.Constants here, assembly resolution isn't hooked up at this point
             {
@@ -65,11 +71,31 @@ namespace StardewModdingAPI
             try
             {
                 AssemblyName name = new AssemblyName(e.Name);
+                foreach ( FileInfo dll in new DirectoryInfo( Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location ) ).EnumerateFiles( "*.dll" ) )
+                {
+                    try
+                    {
+                        if ( name.Name.Equals( dll.Name, StringComparison.InvariantCultureIgnoreCase ) ||
+                             name.Name.Equals( AssemblyName.GetAssemblyName( dll.FullName ).Name, StringComparison.InvariantCultureIgnoreCase ) )
+                            return Assembly.LoadFrom( dll.FullName );
+                    }
+                    catch ( BadImageFormatException )
+                    {
+                        // Non .NET assembly was encountered in AssemblyName.GetAssemblyName
+                        // Let's just move on
+                    }
+                }
                 foreach (FileInfo dll in new DirectoryInfo(Program.DllSearchPath).EnumerateFiles("*.dll"))
                 {
                     if (name.Name.Equals(AssemblyName.GetAssemblyName(dll.FullName).Name, StringComparison.InvariantCultureIgnoreCase))
                         return Assembly.LoadFrom(dll.FullName);
                 }
+
+                // This needs to be after the smapi-internal searching since 
+                // Program.GetExecutableAssemblyName() will load the toolkit DLL.
+                if ( name.Name == Program.GetExecutableAssemblyName() )
+                    return GameRewriter.GameAssembly;
+
                 return null;
             }
             catch (Exception ex)
@@ -92,23 +118,23 @@ namespace StardewModdingAPI
         private static void AssertGameVersion()
         {
             // min version
-            if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
+            if ( GameConstants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
             {
-                ISemanticVersion suggestedApiVersion = Constants.GetCompatibleApiVersion(Constants.GameVersion);
+                ISemanticVersion suggestedApiVersion = Constants.GetCompatibleApiVersion(GameConstants.GameVersion);
                 Program.PrintErrorAndExit(suggestedApiVersion != null
-                    ? $"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. You can install SMAPI {suggestedApiVersion} instead to fix this error, or update your game to the latest version."
-                    : $"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI."
+                    ? $"Oops! You're running Stardew Valley {GameConstants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. You can install SMAPI {suggestedApiVersion} instead to fix this error, or update your game to the latest version."
+                    : $"Oops! You're running Stardew Valley {GameConstants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI."
                 );
             }
 
             // max version
-            else if (Constants.MaximumGameVersion != null && Constants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
-                Program.PrintErrorAndExit($"Oops! You're running Stardew Valley {Constants.GameVersion}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.MaximumGameVersion}. Please check for a newer version of SMAPI: https://smapi.io.");
+            else if (Constants.MaximumGameVersion != null && GameConstants.GameVersion.IsNewerThan(Constants.MaximumGameVersion))
+                Program.PrintErrorAndExit($"Oops! You're running Stardew Valley {GameConstants.GameVersion}, but this version of SMAPI is only compatible up to Stardew Valley {Constants.MaximumGameVersion}. Please check for a newer version of SMAPI: https://smapi.io.");
 
         }
 
         /// <summary>Get the game's executable assembly name.</summary>
-        private static string GetExecutableAssemblyName()
+        internal static string GetExecutableAssemblyName()
         {
             Platform platform = EnvironmentUtility.DetectPlatform();
             return platform == Platform.Windows ? "Stardew Valley" : "StardewValley";
@@ -117,34 +143,12 @@ namespace StardewModdingAPI
         /// <summary>Initialize SMAPI and launch the game.</summary>
         /// <param name="args">The command-line arguments.</param>
         /// <remarks>This method is separate from <see cref="Main"/> because that can't contain any references to assemblies loaded by <see cref="CurrentDomain_AssemblyResolve"/> (e.g. via <see cref="Constants"/>), or Mono will incorrectly show an assembly resolution error before assembly resolution is set up.</remarks>
-        private static void Start(string[] args)
+        private static void Start(SPreCore preCore)
         {
-            // get flags
-            bool writeToConsole = !args.Contains("--no-terminal") && Environment.GetEnvironmentVariable("SMAPI_NO_TERMINAL") == null;
-
-            // get mods path
-            string modsPath;
-            {
-                string rawModsPath = null;
-
-                // get from command line args
-                int pathIndex = Array.LastIndexOf(args, "--mods-path") + 1;
-                if (pathIndex >= 1 && args.Length >= pathIndex)
-                    rawModsPath = args[pathIndex];
-
-                // get from environment variables
-                if (string.IsNullOrWhiteSpace(rawModsPath))
-                    rawModsPath = Environment.GetEnvironmentVariable("SMAPI_MODS_PATH");
-
-                // normalise
-                modsPath = !string.IsNullOrWhiteSpace(rawModsPath)
-                    ? Path.Combine(Constants.ExecutionPath, rawModsPath)
-                    : Constants.DefaultModsPath;
-            }
-
             // load SMAPI
-            using SCore core = new SCore(modsPath, writeToConsole);
-            core.RunInteractively();
+            // TODO: Before committing, change this back to without ()
+            using ( SCore core = new SCore(preCore) )
+                core.RunInteractively();
         }
 
         /// <summary>Write an error directly to the console and exit.</summary>

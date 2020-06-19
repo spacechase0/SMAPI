@@ -8,5 +8,8 @@ namespace StardewModdingAPI
 
         /// <summary>Whether the mod is a content pack.</summary>
         bool IsContentPack { get; }
+
+        /// <summary>Whether the mod is a cecil mod.</summary>
+        bool IsCecilMod { get; }
     }
 }

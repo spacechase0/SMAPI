@@ -145,7 +145,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
             if (db != null)
             {
                 this.ID = this.ID.Union(db.FormerIDs).ToArray();
-                this.Name ??= db.DisplayName;
+                this.Name = this.Name ?? db.DisplayName;
             }
         }
 

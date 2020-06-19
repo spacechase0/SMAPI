@@ -34,6 +34,9 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         AccessesFilesystem = 128,
 
         /// <summary>Uses .NET APIs for shell or process access.</summary>
-        AccessesShell = 256
+        AccessesShell = 256,
+
+        /// <summary>The mod is a cecil mod and edits the game directly.</summary>
+        EditsGame = 512,
     }
 }

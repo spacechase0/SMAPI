@@ -1,19 +1,13 @@
 namespace StardewModdingAPI
 {
     /// <summary>The implementation for a Stardew Valley mod.</summary>
-    public interface IMod
+    public interface IMod : IBaseMod
     {
         /*********
         ** Accessors
         *********/
         /// <summary>Provides simplified APIs for writing mods.</summary>
         IModHelper Helper { get; }
-
-        /// <summary>Writes messages to the console and log file.</summary>
-        IMonitor Monitor { get; }
-
-        /// <summary>The mod's manifest.</summary>
-        IManifest ModManifest { get; }
 
 
         /*********

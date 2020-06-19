@@ -510,7 +510,7 @@ namespace StardewModdingAPI.Framework
                 IsHost = Context.IsWorldReady && Context.IsMainPlayer,
                 Platform = Constants.TargetPlatform,
                 ApiVersion = Constants.ApiVersion,
-                GameVersion = Constants.GameVersion,
+                GameVersion = GameConstants.GameVersion,
                 Mods = this.ModRegistry
                     .GetAll()
                     .Select(mod => new RemoteContextModModel

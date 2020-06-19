@@ -44,10 +44,10 @@ namespace StardewModdingAPI
         public static string SavesPath { get; } = Path.Combine(Constants.DataPath, "Saves");
 
         /// <summary>The name of the current save folder (if save info is available, regardless of whether the save file exists yet).</summary>
-        public static string SaveFolderName => Constants.GetSaveFolderName();
+        public static string SaveFolderName => GameConstants.GetSaveFolderName();
 
         /// <summary>The absolute path to the current save folder (if save info is available and the save file exists).</summary>
-        public static string CurrentSavePath => Constants.GetSaveFolderPathIfExists();
+        public static string CurrentSavePath => GameConstants.GetSaveFolderPathIfExists();
 
         /****
         ** Internal
@@ -94,17 +94,11 @@ namespace StardewModdingAPI
         /// <summary>The actual full path to search for mods.</summary>
         internal static string ModsPath { get; set; }
 
-        /// <summary>The game's current semantic version.</summary>
-        internal static ISemanticVersion GameVersion { get; } = new GameVersion(Game1.version);
-
         /// <summary>The target game platform.</summary>
         internal static Platform Platform { get; } = EnvironmentUtility.DetectPlatform();
 
         /// <summary>The game's assembly name.</summary>
         internal static string GameAssemblyName => Constants.Platform == Platform.Windows ? "Stardew Valley" : "StardewValley";
-
-        /// <summary>The language code for non-translated mod assets.</summary>
-        internal static LocalizedContentManager.LanguageCode DefaultLanguage { get; } = LocalizedContentManager.LanguageCode.en;
 
 
         /*********
@@ -222,48 +216,6 @@ namespace StardewModdingAPI
             }
 
             return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences, targetAssemblies);
-        }
-
-
-        /*********
-        ** Private methods
-        *********/
-        /// <summary>Get the name of the save folder, if any.</summary>
-        private static string GetSaveFolderName()
-        {
-            // save not available
-            if (Context.LoadStage == LoadStage.None)
-                return null;
-
-            // get basic info
-            string playerName;
-            ulong saveID;
-            if (Context.LoadStage == LoadStage.SaveParsed)
-            {
-                playerName = SaveGame.loaded.player.Name;
-                saveID = SaveGame.loaded.uniqueIDForThisGame;
-            }
-            else
-            {
-                playerName = Game1.player.Name;
-                saveID = Game1.uniqueIDForThisGame;
-            }
-
-            // build folder name
-            return $"{new string(playerName.Where(char.IsLetterOrDigit).ToArray())}_{saveID}";
-        }
-
-        /// <summary>Get the path to the current save folder, if any.</summary>
-        private static string GetSaveFolderPathIfExists()
-        {
-            string folderName = Constants.GetSaveFolderName();
-            if (folderName == null)
-                return null;
-
-            string path = Path.Combine(Constants.SavesPath, folderName);
-            return Directory.Exists(path)
-                ? path
-                : null;
         }
     }
 }

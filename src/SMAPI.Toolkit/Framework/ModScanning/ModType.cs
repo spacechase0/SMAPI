@@ -16,6 +16,9 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         ContentPack,
 
         /// <summary>A legacy mod which replaces game files directly.</summary>
-        Xnb
+        Xnb,
+
+        /// <summary>A mod which patches the game.</summary>
+        Cecil,
     }
 }

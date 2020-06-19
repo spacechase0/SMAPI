@@ -41,7 +41,7 @@ namespace StardewModdingAPI.Framework
         bool IsIgnored { get; }
 
         /// <summary>The mod instance (if loaded and <see cref="IModInfo.IsContentPack"/> is false).</summary>
-        IMod Mod { get; }
+        IBaseMod Mod { get; }
 
         /// <summary>The content pack instance (if loaded and <see cref="IModInfo.IsContentPack"/> is true).</summary>
         IContentPack ContentPack { get; }
@@ -71,6 +71,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Set a warning flag for the mod.</summary>
         /// <param name="warning">The warning to set.</param>
         IModMetadata SetWarning(ModWarning warning);
+
+        IModMetadata SetMod( ICecilMod mod );
 
         /// <summary>Set the mod instance.</summary>
         /// <param name="mod">The mod instance to set.</param>

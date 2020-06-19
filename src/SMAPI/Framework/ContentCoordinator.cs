@@ -46,7 +46,7 @@ namespace StardewModdingAPI.Framework
         private readonly IList<IContentManager> ContentManagers = new List<IContentManager>();
 
         /// <summary>The language code for language-agnostic mod assets.</summary>
-        private readonly LocalizedContentManager.LanguageCode DefaultLanguage = Constants.DefaultLanguage;
+        private readonly LocalizedContentManager.LanguageCode DefaultLanguage = GameConstants.DefaultLanguage;
 
         /// <summary>Whether the content coordinator has been disposed.</summary>
         private bool IsDisposed;

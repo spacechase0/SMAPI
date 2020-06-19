@@ -47,7 +47,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public bool IsIgnored { get; }
 
         /// <summary>The mod instance (if loaded and <see cref="IsContentPack"/> is false).</summary>
-        public IMod Mod { get; private set; }
+        public IBaseMod Mod { get; private set; }
 
         /// <summary>The content pack instance (if loaded and <see cref="IsContentPack"/> is true).</summary>
         public IContentPack ContentPack { get; private set; }
@@ -66,6 +66,9 @@ namespace StardewModdingAPI.Framework.ModLoading
 
         /// <summary>Whether the mod is a content pack.</summary>
         public bool IsContentPack => this.Manifest?.ContentPackFor != null;
+
+        /// <summary>Whether this mod is a cecil mod.</summary>
+        public bool IsCecilMod => this.Manifest?.ExtraFields?.ContainsKey( "Cecil" ) ?? false;
 
 
         /*********
@@ -105,6 +108,16 @@ namespace StardewModdingAPI.Framework.ModLoading
         public IModMetadata SetWarning(ModWarning warning)
         {
             this.Warnings |= warning;
+            return this;
+        }
+
+        public IModMetadata SetMod( ICecilMod mod )
+        {
+            if ( !this.IsCecilMod || this.ContentPack != null )
+                throw new InvalidOperationException( "A mod can't be both a cecil mod and something else." );
+
+            this.Mod = mod;
+            this.Monitor = mod.Monitor;
             return this;
         }
 

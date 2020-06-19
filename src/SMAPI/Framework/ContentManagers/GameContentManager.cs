@@ -38,6 +38,31 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>A callback to invoke the first time *any* game content manager loads an asset.</summary>
         private readonly Action OnLoadingFirstAsset;
 
+        protected override T RawLoad<T>( string assetName, bool useCache )
+        {
+            try
+            {
+                return base.RawLoad<T>( assetName, useCache );
+            }
+            catch ( ContentLoadException )
+            {
+                // circumvent Harmony 2.0 crash
+                // (This is a terrible, terrible hack. Harmony 2.0 somehow breaks the XNA binary
+                // deserializer when any mod patches GameLocation.performAction, but *only* for the
+                // Data\Movies asset. If the base content manager crashes trying to load an asset
+                // that exists in the smapi-internal\assets folder, bypass the binary deserializer
+                // and load the unpacked file from there instead.)
+                string filename = string.Join("_", StardewModdingAPI.Toolkit.Utilities.PathUtilities.GetSegments(assetName)) + ".json";
+                System.IO.DirectoryInfo unpackedAssetsFolder = new System.IO.DirectoryInfo(System.IO.Path.Combine(Constants.InternalFilesPath, "assets"));
+                foreach ( System.IO.FileInfo file in unpackedAssetsFolder.GetFiles( "*.json" ) )
+                {
+                    if ( file.Name.Equals( filename, StringComparison.OrdinalIgnoreCase ) )
+                        return Newtonsoft.Json.JsonConvert.DeserializeObject<T>( System.IO.File.ReadAllText( file.FullName ) );
+                }
+
+                throw;
+            }
+        }
 
         /*********
         ** Public methods
@@ -248,7 +273,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // try base asset
-            return base.RawLoad<T>(assetName, useCache);
+            return this.RawLoad<T>(assetName, useCache);
         }
 
         /// <summary>Parse an asset key that contains an explicit language into its asset name and language, if applicable.</summary>

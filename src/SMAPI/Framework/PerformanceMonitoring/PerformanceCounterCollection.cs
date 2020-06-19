@@ -114,7 +114,7 @@ namespace StardewModdingAPI.Framework.PerformanceMonitoring
             if (this.PeakInvocations.Count == 0)
                 return 0;
 
-            endTime ??= DateTime.UtcNow;
+            endTime = endTime ?? DateTime.UtcNow;
             DateTime startTime = endTime.Value.Subtract(range);
 
             return this.PeakInvocations

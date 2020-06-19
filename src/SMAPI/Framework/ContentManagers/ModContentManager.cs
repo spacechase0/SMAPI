@@ -33,7 +33,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private readonly IContentManager GameContentManager;
 
         /// <summary>The language code for language-agnostic mod assets.</summary>
-        private readonly LanguageCode DefaultLanguage = Constants.DefaultLanguage;
+        private readonly LanguageCode DefaultLanguage = GameConstants.DefaultLanguage;
 
 
         /*********
@@ -149,11 +149,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
                                 throw GetContentError($"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
 
                             // fetch & cache
-                            using FileStream stream = File.OpenRead(file.FullName);
+                            using ( FileStream stream = File.OpenRead( file.FullName ) )
+                            {
 
-                            Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
-                            texture = this.PremultiplyTransparency(texture);
-                            asset = (T)(object)texture;
+                                Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
+                                texture = this.PremultiplyTransparency( texture );
+                                asset = ( T ) ( object ) texture;
+                            }
                         }
                         break;
 

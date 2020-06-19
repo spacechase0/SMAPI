@@ -53,6 +53,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // init resolver
             this.AssemblyDefinitionResolver = this.TrackForDisposal(new AssemblyDefinitionResolver());
+            this.AssemblyDefinitionResolver.Add(GameRewriter.GameAssemblyDefinition);
             this.AssemblyDefinitionResolver.AddSearchDirectory(Constants.ExecutionPath);
             this.AssemblyDefinitionResolver.AddSearchDirectory(Constants.InternalFilesPath);
 
@@ -139,10 +140,12 @@ namespace StardewModdingAPI.Framework.ModLoading
                     }
 
                     // load assembly
-                    using MemoryStream outStream = new MemoryStream();
-                    assembly.Definition.Write(outStream);
-                    byte[] bytes = outStream.ToArray();
-                    lastAssembly = Assembly.Load(bytes, symbols);
+                    using ( MemoryStream outStream = new MemoryStream() )
+                    {
+                        assembly.Definition.Write( outStream );
+                        byte[] bytes = outStream.ToArray();
+                        lastAssembly = Assembly.Load(bytes, symbols);
+                    }
                 }
                 else
                 {
