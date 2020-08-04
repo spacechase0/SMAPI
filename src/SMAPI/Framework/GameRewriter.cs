@@ -22,7 +22,7 @@ namespace StardewModdingAPI
             {
                 if ( !modMeta.IsCecilMod )
                     continue;
-                ICecilMod mod = modMeta.Mod as ICecilMod;
+                IRewriterMod mod = modMeta.Mod as IRewriterMod;
 
                 try
                 {
@@ -30,7 +30,7 @@ namespace StardewModdingAPI
                 }
                 catch ( Exception ex )
                 {
-                    modMeta.LogAsMod( $"Cecil crashed on entry; the game might not work correctly. Technical details:\n{ex.GetLogSummary()}", LogLevel.Error );
+                    modMeta.LogAsMod( $"Rewriter mod crashed on entry; the game might not work correctly. Technical details:\n{ex.GetLogSummary()}", LogLevel.Error );
                 }
             }
 

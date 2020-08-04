@@ -3,7 +3,7 @@ using Mono.Cecil;
 namespace StardewModdingAPI
 {
     /// <summary>The implementation for a Stardew Valley mod.</summary>
-    public interface ICecilMod : IBaseMod
+    public interface IRewriterMod : IBaseMod
     {
         /*********
         ** Public methods

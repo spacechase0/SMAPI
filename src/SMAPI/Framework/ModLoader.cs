@@ -562,7 +562,7 @@ namespace StardewModdingAPI.Framework
                 try
                 {
                     // get mod instance
-                    if ( !this.TryLoadModEntry( modAssembly, out CecilMod modEntry, out errorReasonPhrase ) )
+                    if ( !this.TryLoadModEntry( modAssembly, out RewriterMod modEntry, out errorReasonPhrase ) )
                         return false;
 
                     IMonitor monitor = this.GetModMonitor(mod.DisplayName);

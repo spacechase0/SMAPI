@@ -111,7 +111,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             return this;
         }
 
-        public IModMetadata SetMod( ICecilMod mod )
+        public IModMetadata SetMod( IRewriterMod mod )
         {
             if ( !this.IsCecilMod || this.ContentPack != null )
                 throw new InvalidOperationException( "A mod can't be both a cecil mod and something else." );

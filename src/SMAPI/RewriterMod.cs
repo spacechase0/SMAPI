@@ -3,8 +3,8 @@ using Mono.Cecil;
 
 namespace StardewModdingAPI
 {
-    /// <summary>The base class for a mod.</summary>
-    public abstract class CecilMod : ICecilMod, IDisposable
+    /// <summary>The base class for a rewriter mod.</summary>
+    public abstract class RewriterMod : IRewriterMod, IDisposable
     {
         /*********
         ** Accessors
@@ -39,7 +39,7 @@ namespace StardewModdingAPI
         protected virtual void Dispose(bool disposing) { }
 
         /// <summary>Destruct the instance.</summary>
-        ~CecilMod()
+        ~RewriterMod()
         {
             this.Dispose(false);
         }

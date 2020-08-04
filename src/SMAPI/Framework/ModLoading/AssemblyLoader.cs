@@ -190,6 +190,10 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// </remarks>
         public static Assembly ResolveAssembly(string name)
         {
+            // Still want the game assembly to always use the rewritten one
+            if ( new AssemblyName( name ).Name == Program.GetExecutableAssemblyName() )
+                return GameRewriter.GameAssembly;
+
             string shortName = name.Split(new[] { ',' }, 2).First(); // get simple name (without version and culture)
             return AppDomain.CurrentDomain
                 .GetAssemblies()

@@ -41,7 +41,6 @@ namespace StardewModdingAPI
                 SPreCore preCore = new SPreCore( args );
 
                 GameRewriter.RewriteAndLoad(preCore.ModRegistry);
-
                 Program.AssertGamePresent();
                 Program.AssertGameVersion();
 
