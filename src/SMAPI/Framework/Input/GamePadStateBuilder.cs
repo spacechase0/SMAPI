@@ -56,8 +56,7 @@ namespace StardewModdingAPI.Framework.Input
         /// <param name="state">The state from which to reset, or <c>null</c> to get the latest state.</param>
         public GamePadStateBuilder Reset(GamePadState? state = null)
         {
-            state = state ?? GamePad.GetState( PlayerIndex.One );
-            this.State = state;
+            this.State = state ??= GamePad.GetState(PlayerIndex.One);
             this.IsConnected = state.Value.IsConnected;
 
             if (!this.IsConnected)
@@ -206,7 +205,7 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>Get the equivalent state.</summary>
         public GamePadState GetState()
         {
-            this.State = this.State ?? new GamePadState(
+            this.State ??= new GamePadState(
                 leftThumbStick: this.LeftStickPos,
                 rightThumbStick: this.RightStickPos,
                 leftTrigger: this.LeftTrigger,

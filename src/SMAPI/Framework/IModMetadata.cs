@@ -72,7 +72,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="warning">The warning to set.</param>
         IModMetadata SetWarning(ModWarning warning);
 
-        IModMetadata SetMod( IRewriterMod mod );
+        /// <summary>Set the mod instance.</summary>
+        /// <param name="mod">The mod instance to set.</param>
+        IModMetadata SetMod(IRewriterMod mod);
 
         /// <summary>Set the mod instance.</summary>
         /// <param name="mod">The mod instance to set.</param>

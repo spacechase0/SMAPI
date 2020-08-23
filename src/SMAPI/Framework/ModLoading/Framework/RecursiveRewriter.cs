@@ -119,7 +119,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                     }
                     catch (Exception ex)
                     {
-                        exception = exception ?? ex;
+                        exception ??= ex;
                     }
 
                     if (changed)

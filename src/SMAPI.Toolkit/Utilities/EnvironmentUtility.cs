@@ -30,8 +30,7 @@ namespace StardewModdingAPI.Toolkit.Utilities
         /// <summary>Detect the current OS.</summary>
         public static Platform DetectPlatform()
         {
-            EnvironmentUtility.CachedPlatform = EnvironmentUtility.CachedPlatform ?? EnvironmentUtility.DetectPlatformImpl();
-            return EnvironmentUtility.CachedPlatform.Value;
+            return EnvironmentUtility.CachedPlatform ??= EnvironmentUtility.DetectPlatformImpl();
         }
 
 
@@ -115,7 +114,7 @@ namespace StardewModdingAPI.Toolkit.Utilities
         /// </remarks>
         private static bool IsRunningAndroid()
         {
-            using ( Process process = new Process
+            using Process process = new Process
             {
                 StartInfo =
                 {
@@ -125,19 +124,17 @@ namespace StardewModdingAPI.Toolkit.Utilities
                     UseShellExecute = false,
                     CreateNoWindow = true
                 }
-            } )
-            {
+            };
 
-                try
-                {
-                    process.Start();
-                    string output = process.StandardOutput.ReadToEnd();
-                    return !string.IsNullOrWhiteSpace( output );
-                }
-                catch
-                {
-                    return false;
-                }
+            try
+            {
+                process.Start();
+                string output = process.StandardOutput.ReadToEnd();
+                return !string.IsNullOrWhiteSpace(output);
+            }
+            catch
+            {
+                return false;
             }
         }
 

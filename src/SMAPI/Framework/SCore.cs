@@ -5,24 +5,17 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Security;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 #if SMAPI_FOR_WINDOWS
 using System.Windows.Forms;
 #endif
 using Newtonsoft.Json;
-using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Commands;
 using StardewModdingAPI.Framework.Events;
-using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Framework.Models;
-using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.PerformanceMonitoring;
@@ -30,8 +23,6 @@ using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Serialization;
 using StardewModdingAPI.Patches;
 using StardewModdingAPI.Toolkit;
-using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
-using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Utilities;
@@ -90,7 +81,7 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Whether the program has been disposed.</summary>
         private bool IsDisposed;
-        
+
         /// <summary>The mod toolkit used for generic mod interactions.</summary>
         private readonly ModToolkit Toolkit;
 
@@ -218,7 +209,7 @@ namespace StardewModdingAPI.Framework
                         try
                         {
                             File.WriteAllText(Constants.FatalCrashMarker, string.Empty);
-                            File.Copy(this.LogFile.LogPath, Constants.FatalCrashLog, overwrite: true);
+                            File.Copy(this.LogFile.Path, Constants.FatalCrashLog, overwrite: true);
                         }
                         catch (Exception ex)
                         {
@@ -372,13 +363,13 @@ namespace StardewModdingAPI.Framework
 
             // load actual mods
             var mis = new ModInitStuff(); // for some reason new Class() { stuff = ... }; isn't working
-            mis.contentCore = this.ContentCore;
-            mis.eventManager = this.EventManager;
-            mis.commandManager = this.GameInstance.CommandManager;
-            mis.multiplayer = this.GameInstance.Multiplayer;
-            mis.reflection = this.Reflection;
-            mis.input = this.GameInstance.Input;
-            this.ModLoader.LoadMods(mis, this.ReloadTranslations, this );
+            mis.ContentCore = this.ContentCore;
+            mis.EventManager = this.EventManager;
+            mis.CommandManager = this.GameInstance.CommandManager;
+            mis.Multiplayer = this.GameInstance.Multiplayer;
+            mis.Reflection = this.Reflection;
+            mis.Input = this.GameInstance.Input;
+            this.ModLoader.LoadMods(mis, this.ReloadTranslations, this);
 
             // update window titles
             int modsLoaded = this.ModRegistry.GetAll().Count();
@@ -549,7 +540,7 @@ namespace StardewModdingAPI.Framework
             // mod translations
             foreach (IModMetadata metadata in mods)
             {
-                if ( metadata.IsCecilMod )
+                if (metadata.IsCecilMod)
                     continue;
 
                 var translations = this.ReadTranslationFiles(Path.Combine(metadata.DirectoryPath, "i18n"), out IList<string> errors);
@@ -636,19 +627,19 @@ namespace StardewModdingAPI.Framework
             Environment.Exit(0);
         }
 
-        public void OnInterceptorsChanged( IModMetadata mod, IEnumerable<IAssetEditor> added, IEnumerable<IAssetEditor> removed, IList<ModLinked<IAssetEditor>> list )
+        public void OnInterceptorsChanged(IModMetadata mod, IEnumerable<IAssetEditor> added, IEnumerable<IAssetEditor> removed, IList<ModLinked<IAssetEditor>> list)
         {
-            this.OnInterceptorsChanged<IAssetEditor>( mod, added, removed, list );
+            this.OnInterceptorsChanged<IAssetEditor>(mod, added, removed, list);
         }
 
-        public void OnInterceptorsChanged( IModMetadata mod, IEnumerable<IAssetLoader> added, IEnumerable<IAssetLoader> removed, IList<ModLinked<IAssetLoader>> list )
+        public void OnInterceptorsChanged(IModMetadata mod, IEnumerable<IAssetLoader> added, IEnumerable<IAssetLoader> removed, IList<ModLinked<IAssetLoader>> list)
         {
-            this.OnInterceptorsChanged<IAssetLoader>( mod, added, removed, list );
+            this.OnInterceptorsChanged<IAssetLoader>(mod, added, removed, list);
         }
 
-        public void OnAssetInterceptorsChanged( IModMetadata mod, IList newItems, IList oldItems )
+        public void OnAssetInterceptorsChanged(IModMetadata mod, IList newItems, IList oldItems)
         {
-            this.GameInstance.OnAssetInterceptorsChanged( mod, newItems, oldItems );
+            this.GameInstance.OnAssetInterceptorsChanged(mod, newItems, oldItems);
         }
     }
 }

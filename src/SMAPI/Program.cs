@@ -1,14 +1,12 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 #if SMAPI_FOR_WINDOWS
 #endif
 using StardewModdingAPI.Framework;
-using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Toolkit.Utilities;
 
 [assembly: InternalsVisibleTo("SMAPI.Tests")]
@@ -26,7 +24,8 @@ namespace StardewModdingAPI
         /// <remarks>We can't use <see cref="Constants.ExecutionPath"/> directly, since <see cref="Constants"/> depends on DLLs loaded from this folder.</remarks>
         [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "The assembly location is never null in this context.")]
         internal static readonly string DllSearchPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "smapi-internal");
-        
+
+
         /*********
         ** Public methods
         *********/
@@ -38,7 +37,7 @@ namespace StardewModdingAPI
             {
                 AppDomain.CurrentDomain.AssemblyResolve += Program.CurrentDomain_AssemblyResolve;
 
-                SPreCore preCore = new SPreCore( args );
+                SPreCore preCore = new SPreCore(args);
 
                 GameRewriter.RewriteAndLoad(preCore.ModRegistry);
                 Program.AssertGamePresent();
@@ -70,15 +69,15 @@ namespace StardewModdingAPI
             try
             {
                 AssemblyName name = new AssemblyName(e.Name);
-                foreach ( FileInfo dll in new DirectoryInfo( Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location ) ).EnumerateFiles( "*.dll" ) )
+                foreach (FileInfo dll in new DirectoryInfo(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)).EnumerateFiles("*.dll"))
                 {
                     try
                     {
-                        if ( name.Name.Equals( dll.Name, StringComparison.InvariantCultureIgnoreCase ) ||
-                             name.Name.Equals( AssemblyName.GetAssemblyName( dll.FullName ).Name, StringComparison.InvariantCultureIgnoreCase ) )
-                            return Assembly.LoadFrom( dll.FullName );
+                        if (name.Name.Equals(dll.Name, StringComparison.InvariantCultureIgnoreCase) ||
+                             name.Name.Equals(AssemblyName.GetAssemblyName(dll.FullName).Name, StringComparison.InvariantCultureIgnoreCase))
+                            return Assembly.LoadFrom(dll.FullName);
                     }
-                    catch ( BadImageFormatException )
+                    catch (BadImageFormatException)
                     {
                         // Non .NET assembly was encountered in AssemblyName.GetAssemblyName
                         // Let's just move on
@@ -92,7 +91,7 @@ namespace StardewModdingAPI
 
                 // This needs to be after the smapi-internal searching since 
                 // Program.GetExecutableAssemblyName() will load the toolkit DLL.
-                if ( name.Name == Program.GetExecutableAssemblyName() )
+                if (name.Name == Program.GetExecutableAssemblyName())
                     return GameRewriter.GameAssembly;
 
                 return null;
@@ -117,7 +116,7 @@ namespace StardewModdingAPI
         private static void AssertGameVersion()
         {
             // min version
-            if ( GameConstants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
+            if (GameConstants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
             {
                 ISemanticVersion suggestedApiVersion = Constants.GetCompatibleApiVersion(GameConstants.GameVersion);
                 Program.PrintErrorAndExit(suggestedApiVersion != null
@@ -145,9 +144,8 @@ namespace StardewModdingAPI
         private static void Start(SPreCore preCore)
         {
             // load SMAPI
-            // TODO: Before committing, change this back to without ()
-            using ( SCore core = new SCore(preCore) )
-                core.RunInteractively();
+            using SCore core = new SCore(preCore);
+            core.RunInteractively();
         }
 
         /// <summary>Write an error directly to the console and exit.</summary>

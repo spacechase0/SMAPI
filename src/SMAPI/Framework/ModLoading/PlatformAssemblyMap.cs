@@ -47,11 +47,11 @@ namespace StardewModdingAPI.Framework.ModLoading
             // save data
             this.TargetPlatform = targetPlatform;
             this.RemoveNames = removeAssemblyNames;
-            
+
             // cache assembly metadata
             this.Targets = targetAssemblies;
             this.TargetReferences = this.Targets.ToDictionary(assembly => assembly, assembly => AssemblyNameReference.Parse(assembly.FullName));
-            this.TargetModules = this.Targets.ToDictionary(assembly => assembly, assembly => this.GetModuleDefinition(assembly));
+            this.TargetModules = this.Targets.ToDictionary(assembly => assembly, this.GetModuleDefinition);
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
@@ -65,7 +65,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /*********
         ** Private methods
         *********/
-        private ModuleDefinition GetModuleDefinition( Assembly assembly )
+        /// <summary>Get the module definition for an assembly.</summary>
+        /// <param name="assembly">The assembly instance.</param>
+        private ModuleDefinition GetModuleDefinition(Assembly assembly)
         {
             return assembly == GameRewriter.GameAssembly
                 ? GameRewriter.GameAssemblyDefinition.Modules.Single() // use rewritten game assembly

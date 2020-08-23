@@ -149,13 +149,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
                                 throw GetContentError($"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
 
                             // fetch & cache
-                            using ( FileStream stream = File.OpenRead( file.FullName ) )
-                            {
+                            using FileStream stream = File.OpenRead(file.FullName);
 
-                                Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
-                                texture = this.PremultiplyTransparency( texture );
-                                asset = ( T ) ( object ) texture;
-                            }
+                            Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
+                            texture = this.PremultiplyTransparency(texture);
+                            asset = (T)(object)texture;
                         }
                         break;
 

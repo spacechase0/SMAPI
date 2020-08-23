@@ -37,9 +37,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Unregister a mod.</summary>
         /// <param name="metadata">The mod metadata.</param>
-        public void Remove( IModMetadata metadata )
+        public void Remove(IModMetadata metadata)
         {
-            this.Mods.Remove( metadata );
+            this.Mods.Remove(metadata);
         }
 
         /// <summary>Track a mod's assembly for use via <see cref="GetFrom"/>.</summary>

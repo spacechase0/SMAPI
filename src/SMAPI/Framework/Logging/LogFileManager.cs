@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Framework.Logging
         ** Accessors
         *********/
         /// <summary>The full path to the log file being written.</summary>
-        public string LogPath { get; }
+        public string Path { get; }
 
 
         /*********
@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="path">The log file to write.</param>
         public LogFileManager(string path)
         {
-            this.LogPath = path;
+            this.Path = path;
 
             // create log directory if needed
             string logDir = System.IO.Path.GetDirectoryName(path);
@@ -59,51 +59,51 @@ namespace StardewModdingAPI.Framework.Logging
         public static void PurgeNormalLogs()
         {
             DirectoryInfo logsDir = new DirectoryInfo(Constants.LogDir);
-            if ( !logsDir.Exists )
+            if (!logsDir.Exists)
                 return;
 
-            foreach ( FileInfo logFile in logsDir.EnumerateFiles() )
+            foreach (FileInfo logFile in logsDir.EnumerateFiles())
             {
                 // skip non-SMAPI file
-                if ( !logFile.Name.StartsWith( Constants.LogNamePrefix, StringComparison.InvariantCultureIgnoreCase ) )
+                if (!logFile.Name.StartsWith(Constants.LogNamePrefix, StringComparison.InvariantCultureIgnoreCase))
                     continue;
 
                 // skip crash log
-                if ( logFile.FullName == Constants.FatalCrashLog )
+                if (logFile.FullName == Constants.FatalCrashLog)
                     continue;
 
                 // delete file
                 try
                 {
-                    FileUtilities.ForceDelete( logFile );
+                    FileUtilities.ForceDelete(logFile);
                 }
-                catch ( IOException )
+                catch (IOException)
                 {
                     // ignore file if it's in use
                 }
             }
         }
-        
+
         /// <summary>Get the absolute path to the next available log file.</summary>
         public static string GetLogPath()
         {
             // default path
             {
-                FileInfo defaultFile = new FileInfo(Path.Combine(Constants.LogDir, $"{Constants.LogFilename}.{Constants.LogExtension}"));
-                if ( !defaultFile.Exists )
+                FileInfo defaultFile = new FileInfo(System.IO.Path.Combine(Constants.LogDir, $"{Constants.LogFilename}.{Constants.LogExtension}"));
+                if (!defaultFile.Exists)
                     return defaultFile.FullName;
             }
 
             // get first disambiguated path
-            for ( int i = 2; i < int.MaxValue; i++ )
+            for (int i = 2; i < int.MaxValue; i++)
             {
-                FileInfo file = new FileInfo(Path.Combine(Constants.LogDir, $"{Constants.LogFilename}.player-{i}.{Constants.LogExtension}"));
-                if ( !file.Exists )
+                FileInfo file = new FileInfo(System.IO.Path.Combine(Constants.LogDir, $"{Constants.LogFilename}.player-{i}.{Constants.LogExtension}"));
+                if (!file.Exists)
                     return file.FullName;
             }
 
             // should never happen
-            throw new InvalidOperationException( "Could not find an available log path." );
+            throw new InvalidOperationException("Could not find an available log path.");
         }
     }
 }

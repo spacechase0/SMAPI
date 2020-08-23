@@ -174,7 +174,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             if (data == null)
                 throw new ArgumentNullException(nameof(data), "Can't get a patch helper for a null value.");
 
-            assetName = assetName ?? $"temp/{Guid.NewGuid():N}";
+            assetName ??= $"temp/{Guid.NewGuid():N}";
             return new AssetDataForObject(this.CurrentLocale, assetName, data, this.NormalizeAssetName);
         }
 

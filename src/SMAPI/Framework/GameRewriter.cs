@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
 using StardewModdingAPI.Framework;
@@ -15,32 +14,30 @@ namespace StardewModdingAPI
         internal static void RewriteAndLoad(ModRegistry modRegistry)
         {
             // Read game assembly
-            var game = AssemblyDefinition.ReadAssembly( Path.Combine( Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Program.GetExecutableAssemblyName() + ".exe" ) );
+            var game = AssemblyDefinition.ReadAssembly(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Program.GetExecutableAssemblyName() + ".exe"));
 
             // Do rewriting
-            foreach ( var modMeta in modRegistry.GetAll() )
+            foreach (var modMeta in modRegistry.GetAll())
             {
-                if ( !modMeta.IsCecilMod )
+                if (!modMeta.IsCecilMod)
                     continue;
-                IRewriterMod mod = modMeta.Mod as IRewriterMod;
+                IRewriterMod mod = (IRewriterMod)modMeta.Mod;
 
                 try
                 {
-                    mod.Entry( game );
+                    mod.Entry(game);
                 }
-                catch ( Exception ex )
+                catch (Exception ex)
                 {
-                    modMeta.LogAsMod( $"Rewriter mod crashed on entry; the game might not work correctly. Technical details:\n{ex.GetLogSummary()}", LogLevel.Error );
+                    modMeta.LogAsMod($"Rewriter mod crashed on entry; the game might not work correctly. Technical details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
             }
 
             // Save results and load the game
             GameAssemblyDefinition = game;
-            using ( MemoryStream ms = new MemoryStream() )
-            {
-                game.Write( ms );
-                GameAssembly = Assembly.Load( ms.ToArray() );
-            }
+            using MemoryStream ms = new MemoryStream();
+            game.Write(ms);
+            GameRewriter.GameAssembly = Assembly.Load(ms.ToArray());
         }
     }
 }

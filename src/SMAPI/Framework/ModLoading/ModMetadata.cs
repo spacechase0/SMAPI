@@ -68,7 +68,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public bool IsContentPack => this.Manifest?.ContentPackFor != null;
 
         /// <summary>Whether this mod is a cecil mod.</summary>
-        public bool IsCecilMod => this.Manifest?.ExtraFields?.ContainsKey( "Cecil" ) ?? false;
+        public bool IsCecilMod => this.Manifest?.ExtraFields?.ContainsKey("Cecil") ?? false;
 
 
         /*********
@@ -111,10 +111,12 @@ namespace StardewModdingAPI.Framework.ModLoading
             return this;
         }
 
-        public IModMetadata SetMod( IRewriterMod mod )
+        /// <summary>Set the mod instance.</summary>
+        /// <param name="mod">The mod instance to set.</param>
+        public IModMetadata SetMod(IRewriterMod mod)
         {
-            if ( !this.IsCecilMod || this.ContentPack != null )
-                throw new InvalidOperationException( "A mod can't be both a cecil mod and something else." );
+            if (!this.IsCecilMod || this.ContentPack != null)
+                throw new InvalidOperationException("A mod can't be both a cecil mod and something else.");
 
             this.Mod = mod;
             this.Monitor = mod.Monitor;

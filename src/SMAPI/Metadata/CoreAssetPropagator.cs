@@ -234,7 +234,7 @@ namespace StardewModdingAPI.Metadata
                             // add bundles
                             if (!bundles.TryGetValue(bundleKey, out bool[] values) || values.Length < rewardsCount)
                             {
-                                values = values ?? new bool[0];
+                                values ??= new bool[0];
 
                                 bundles.Remove(bundleKey);
                                 bundles[bundleKey] = values.Concat(Enumerable.Repeat(false, rewardsCount - values.Length)).ToArray();

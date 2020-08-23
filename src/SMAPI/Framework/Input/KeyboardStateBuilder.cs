@@ -31,8 +31,7 @@ namespace StardewModdingAPI.Framework.Input
         /// <param name="state">The state from which to reset, or <c>null</c> to get the latest state.</param>
         public KeyboardStateBuilder Reset(KeyboardState? state = null)
         {
-            state = state ?? Keyboard.GetState();
-            this.State = state;
+            this.State = state ??= Keyboard.GetState();
 
             this.PressedButtons.Clear();
             foreach (var button in state.Value.GetPressedKeys())

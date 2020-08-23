@@ -19,6 +19,6 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         Xnb,
 
         /// <summary>A mod which patches the game.</summary>
-        Cecil,
+        Cecil
     }
 }

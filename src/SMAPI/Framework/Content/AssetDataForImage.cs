@@ -43,8 +43,8 @@ namespace StardewModdingAPI.Framework.Content
             Texture2D target = this.Data;
 
             // get areas
-            sourceArea = sourceArea ?? new Rectangle(0, 0, source.Width, source.Height);
-            targetArea = targetArea ?? new Rectangle(0, 0, Math.Min(sourceArea.Value.Width, target.Width), Math.Min(sourceArea.Value.Height, target.Height));
+            sourceArea ??= new Rectangle(0, 0, source.Width, source.Height);
+            targetArea ??= new Rectangle(0, 0, Math.Min(sourceArea.Value.Width, target.Width), Math.Min(sourceArea.Value.Height, target.Height));
 
             // validate
             if (sourceArea.Value.X < 0 || sourceArea.Value.Y < 0 || sourceArea.Value.Right > source.Width || sourceArea.Value.Bottom > source.Height)

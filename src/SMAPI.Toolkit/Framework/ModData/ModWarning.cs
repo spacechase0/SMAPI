@@ -37,6 +37,6 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         AccessesShell = 256,
 
         /// <summary>The mod is a cecil mod and edits the game directly.</summary>
-        EditsGame = 512,
+        EditsGame = 512
     }
 }

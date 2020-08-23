@@ -140,12 +140,10 @@ namespace StardewModdingAPI.Framework.ModLoading
                     }
 
                     // load assembly
-                    using ( MemoryStream outStream = new MemoryStream() )
-                    {
-                        assembly.Definition.Write( outStream );
-                        byte[] bytes = outStream.ToArray();
-                        lastAssembly = Assembly.Load(bytes, symbols);
-                    }
+                    using MemoryStream outStream = new MemoryStream();
+                    assembly.Definition.Write(outStream);
+                    byte[] bytes = outStream.ToArray();
+                    lastAssembly = Assembly.Load(bytes, symbols);
                 }
                 else
                 {
@@ -191,7 +189,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public static Assembly ResolveAssembly(string name)
         {
             // Still want the game assembly to always use the rewritten one
-            if ( new AssemblyName( name ).Name == Program.GetExecutableAssemblyName() )
+            if (new AssemblyName(name).Name == Program.GetExecutableAssemblyName())
                 return GameRewriter.GameAssembly;
 
             string shortName = name.Split(new[] { ',' }, 2).First(); // get simple name (without version and culture)
