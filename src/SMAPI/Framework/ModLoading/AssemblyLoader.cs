@@ -302,6 +302,11 @@ namespace StardewModdingAPI.Framework.ModLoading
                         {
                             if (conField.Value is TypeReference typeRef)
                                 this.ChangeTypeScope(typeRef);
+                            else if (conField.Value is TypeReference[] typeRefs)
+                            {
+                                foreach (var singleTypeRef in typeRefs)
+                                    this.ChangeTypeScope(singleTypeRef);
+                            }
                         }
                     }
                 }
