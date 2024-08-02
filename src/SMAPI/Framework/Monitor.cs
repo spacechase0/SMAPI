@@ -126,9 +126,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="input">The user input to log.</param>
         internal void LogUserInput(string input)
         {
-            // user input already appears in the console, so just need to write to file
             string prefix = this.GenerateMessagePrefix(this.Source, (ConsoleLogLevel)LogLevel.Info);
-            this.LogFile.WriteLine($"{prefix} $>{input}");
+            string output = $"{prefix} $>{input}";
+            Console.WriteLine(output);
+            this.LogFile.WriteLine(output);
         }
 
 
