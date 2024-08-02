@@ -51,18 +51,21 @@ namespace StardewModdingAPI.Internal.ConsoleWriting
         {
             if (this.SupportsColor)
             {
-                if (level == ConsoleLogLevel.Critical)
+                lock (Console.Out)
                 {
-                    Console.BackgroundColor = ConsoleColor.Red;
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine(message);
-                    Console.ResetColor();
-                }
-                else
-                {
-                    Console.ForegroundColor = this.Colors[level];
-                    Console.WriteLine(message);
-                    Console.ResetColor();
+                    if (level == ConsoleLogLevel.Critical)
+                    {
+                        Console.BackgroundColor = ConsoleColor.Red;
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine(message);
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = this.Colors[level];
+                        Console.WriteLine(message);
+                        Console.ResetColor();
+                    }
                 }
             }
             else
