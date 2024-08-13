@@ -75,8 +75,7 @@ namespace StardewModdingAPI.Framework.Logging
             // init console
             if (!this.LegacyMode)
             {
-                this.ConsoleWrapper = new ConsoleWrapper();
-                this.ConsoleWriter = new ConsoleWrapperConsoleWriter(Constants.Platform, this.ConsoleWrapper, colorConfig);
+                this.ConsoleWriter = new ConsoleWrapperConsoleWriter(Constants.Platform, colorConfig);
             }
             else
             {
@@ -132,7 +131,10 @@ namespace StardewModdingAPI.Framework.Logging
 
             if (!this.LegacyMode)
             {
+                this.ConsoleWrapper = new ConsoleWrapper();
                 this.ConsoleWrapper.AutoCompleteHandler = commandManager.HandleAutocomplete;
+                if (this.ConsoleWriter is ConsoleWrapperConsoleWriter consoleWrapperWriter)
+                    consoleWrapperWriter.ConsoleWrapper = this.ConsoleWrapper;
             }
 
             // start handling command line input
