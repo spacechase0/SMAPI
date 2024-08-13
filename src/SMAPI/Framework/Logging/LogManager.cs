@@ -27,10 +27,14 @@ namespace StardewModdingAPI.Framework.Logging
         private readonly LogFileManager LogFile;
 
         /// <summary>If we're in legacy mode or not.</summary>
-        private readonly bool LegacyMode;
+        [MemberNotNullWhen(false, nameof(ConsoleWrapper))]
+        private bool LegacyMode { get; }
 
         /// <summary>The console wrapper object.</summary>
         private ConsoleWrapper? ConsoleWrapper;
+
+        /// <summary>The console writer object.</summary>
+        private IConsoleWriter ConsoleWriter;
 
         /// <summary>Create a monitor instance given the ID and name.</summary>
         private readonly Func<string, string, Monitor> GetMonitorImpl;
@@ -68,8 +72,19 @@ namespace StardewModdingAPI.Framework.Logging
             // save legacy mode value
             this.LegacyMode = legacyMode;
 
+            // init console
+            if (!this.LegacyMode)
+            {
+                this.ConsoleWrapper = new ConsoleWrapper();
+                this.ConsoleWriter = new ConsoleWrapperConsoleWriter(Constants.Platform, this.ConsoleWrapper, colorConfig);
+            }
+            else
+            {
+                this.ConsoleWriter = new ColorfulConsoleWriter(Constants.Platform, colorConfig);
+            }
+
             // init monitor
-            this.GetMonitorImpl = (id, name) => new Monitor(name, this.LogFile, colorConfig, verboseLogging.Contains("*") || verboseLogging.Contains(id), getScreenIdForLog)
+            this.GetMonitorImpl = (id, name) => new Monitor(name, this.LogFile, this.ConsoleWriter, verboseLogging.Contains("*") || verboseLogging.Contains(id), getScreenIdForLog)
             {
                 WriteToConsole = writeToConsole,
                 ShowTraceInConsole = isDeveloperMode,
@@ -117,7 +132,6 @@ namespace StardewModdingAPI.Framework.Logging
 
             if (!this.LegacyMode)
             {
-                this.ConsoleWrapper = new ConsoleWrapper();
                 this.ConsoleWrapper.AutoCompleteHandler = commandManager.HandleAutocomplete;
             }
 
