@@ -1,8 +1,6 @@
 using System;
-using System.Buffers;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -18,6 +16,7 @@ using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 using StardewValley;
+using StardewValley.ContentManagement;
 using xTile;
 using xTile.Format;
 using xTile.Tiles;
@@ -55,15 +54,14 @@ internal sealed class ModContentManager : BaseContentManager
     /// <param name="serviceProvider">The service provider to use to locate services.</param>
     /// <param name="modName">The mod display name to show in errors.</param>
     /// <param name="rootDirectory">The root directory to search for content.</param>
-    /// <param name="currentCulture">The current culture for which to localize content.</param>
     /// <param name="coordinator">The central coordinator which manages content managers.</param>
     /// <param name="monitor">Encapsulates monitoring and logging.</param>
     /// <param name="reflection">Simplifies access to private code.</param>
     /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
     /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
     /// <param name="fileLookup">A lookup for files within the <paramref name="rootDirectory"/>.</param>
-    public ModContentManager(string name, ISmapiContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, IFileLookup fileLookup)
-        : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: true)
+    public ModContentManager(string name, ISmapiContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, IFileLookup fileLookup)
+        : base(name, serviceProvider, rootDirectory, coordinator, monitor, reflection, onDisposing, isNamespaced: true)
     {
         this.GameContentManager = gameContentManager;
         this.FileLookup = fileLookup;
@@ -132,7 +130,7 @@ internal sealed class ModContentManager : BaseContentManager
 
     /// <inheritdoc />
     [Obsolete($"Temporary {nameof(ModContentManager)}s are unsupported")]
-    public override LocalizedContentManager CreateTemporary()
+    public override IContentManager CreateTemporary()
     {
         throw new NotSupportedException("Can't create a temporary mod content manager.");
     }
@@ -352,38 +350,6 @@ internal sealed class ModContentManager : BaseContentManager
         return file;
     }
 
-    /// <summary>Premultiply a texture's alpha values to avoid transparency issues in the game.</summary>
-    /// <param name="texture">The texture to premultiply.</param>
-    /// <returns>Returns a premultiplied texture.</returns>
-    /// <remarks>Based on <a href="https://gamedev.stackexchange.com/a/26037">code by David Gouveia</a>.</remarks>
-    private void PremultiplyTransparency(Texture2D texture)
-    {
-        int count = texture.Width * texture.Height;
-        Color[] data = ArrayPool<Color>.Shared.Rent(count);
-        try
-        {
-            texture.GetData(data, 0, count);
-
-            bool changed = false;
-            for (int i = 0; i < count; i++)
-            {
-                ref Color pixel = ref data[i];
-                if (pixel.A is (byte.MinValue or byte.MaxValue))
-                    continue; // no need to change fully transparent/opaque pixels
-
-                data[i] = new Color(pixel.R * pixel.A / byte.MaxValue, pixel.G * pixel.A / byte.MaxValue, pixel.B * pixel.A / byte.MaxValue, pixel.A); // slower version: Color.FromNonPremultiplied(data[i].ToVector4())
-                changed = true;
-            }
-
-            if (changed)
-                texture.SetData(data, 0, count);
-        }
-        finally
-        {
-            ArrayPool<Color>.Shared.Return(data);
-        }
-    }
-
     /// <summary>Fix custom map tilesheet paths so they can be found by the content manager.</summary>
     /// <param name="map">The map whose tilesheets to fix.</param>
     /// <param name="relativeMapPath">The relative map path within the mod folder.</param>
@@ -481,7 +447,7 @@ internal sealed class ModContentManager : BaseContentManager
         AssetName contentKey = this.Coordinator.ParseAssetName(this.GetContentKeyForTilesheetImageSource(relativePath), allowLocales: false);
         try
         {
-            this.GameContentManager.LoadLocalized<Texture2D>(contentKey, this.GameContentManager.Language, useCache: true); // no need to bypass cache here, since we're not storing the asset
+            this.GameContentManager.LoadLocalized<Texture2D>(contentKey, this.GameContentManager.LanguageCode, useCache: true); // no need to bypass cache here, since we're not storing the asset
             assetName = contentKey;
             return true;
         }

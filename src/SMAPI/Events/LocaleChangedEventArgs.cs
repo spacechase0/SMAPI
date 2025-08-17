@@ -1,5 +1,5 @@
 using System;
-using LanguageCode = StardewValley.LocalizedContentManager.LanguageCode;
+using StardewValley.ContentManagement;
 
 namespace StardewModdingAPI.Events;
 

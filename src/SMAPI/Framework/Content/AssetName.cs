@@ -1,7 +1,7 @@
 using System;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Utilities.AssetPathUtilities;
-using StardewValley;
+using StardewValley.ContentManagement;
 using ToolkitPathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
 
 namespace StardewModdingAPI.Framework.Content;
@@ -29,7 +29,7 @@ internal class AssetName : IAssetName
     public string? LocaleCode { get; }
 
     /// <inheritdoc />
-    public LocalizedContentManager.LanguageCode? LanguageCode { get; }
+    public LanguageCode? LanguageCode { get; }
 
 
     /*********
@@ -39,7 +39,7 @@ internal class AssetName : IAssetName
     /// <param name="baseName">The base asset name without the locale code.</param>
     /// <param name="localeCode">The locale code specified in the <see cref="Name"/>, if it's a valid code recognized by the game content.</param>
     /// <param name="languageCode">The language code matching the <see cref="LocaleCode"/>, if applicable.</param>
-    public AssetName(string baseName, string? localeCode, LocalizedContentManager.LanguageCode? languageCode)
+    public AssetName(string baseName, string? localeCode, LanguageCode? languageCode)
     {
         // validate
         if (string.IsNullOrWhiteSpace(baseName))
@@ -63,20 +63,20 @@ internal class AssetName : IAssetName
     /// <param name="rawName">The raw asset name to parse.</param>
     /// <param name="parseLocale">Get the language code for a given locale, if it's valid.</param>
     /// <exception cref="ArgumentException">The <paramref name="rawName"/> is null or empty.</exception>
-    public static AssetName Parse(string rawName, Func<string, LocalizedContentManager.LanguageCode?> parseLocale)
+    public static AssetName Parse(string rawName, Func<string, LanguageCode?> parseLocale)
     {
         if (string.IsNullOrWhiteSpace(rawName))
             throw new ArgumentException("The asset name can't be null or empty.", nameof(rawName));
 
         string baseName = rawName;
         string? localeCode = null;
-        LocalizedContentManager.LanguageCode? languageCode = null;
+        LanguageCode? languageCode = null;
 
         int lastPeriodIndex = rawName.LastIndexOf('.');
         if (lastPeriodIndex > 0 && rawName.Length > lastPeriodIndex + 1)
         {
             string possibleLocaleCode = rawName[(lastPeriodIndex + 1)..];
-            LocalizedContentManager.LanguageCode? possibleLanguageCode = parseLocale(possibleLocaleCode);
+            LanguageCode? possibleLanguageCode = parseLocale(possibleLocaleCode);
 
             if (possibleLanguageCode != null)
             {

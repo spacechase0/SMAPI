@@ -11,6 +11,7 @@ using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
 using StardewValley;
 using StardewValley.Buildings;
+using StardewValley.ContentManagement;
 using StardewValley.Locations;
 using StardewValley.Pathfinding;
 using StardewValley.TerrainFeatures;
@@ -27,7 +28,7 @@ internal class CoreAssetPropagator
     ** Fields
     *********/
     /// <summary>The main content manager through which to reload assets.</summary>
-    private readonly LocalizedContentManager MainContentManager;
+    private readonly IContentManager MainContentManager;
 
     /// <summary>An internal content manager used only for asset propagation. See remarks on <see cref="GameContentManagerForAssetPropagation"/>.</summary>
     private readonly GameContentManagerForAssetPropagation DisposableContentManager;
@@ -58,7 +59,7 @@ internal class CoreAssetPropagator
     /// <param name="multiplayer">The multiplayer instance whose map cache to update.</param>
     /// <param name="reflection">Simplifies access to private code.</param>
     /// <param name="parseAssetName">Parse a raw asset name.</param>
-    public CoreAssetPropagator(LocalizedContentManager mainContent, GameContentManagerForAssetPropagation disposableContent, IMonitor monitor, Multiplayer multiplayer, Reflector reflection, Func<string, IAssetName> parseAssetName)
+    public CoreAssetPropagator(IContentManager mainContent, GameContentManagerForAssetPropagation disposableContent, IMonitor monitor, Multiplayer multiplayer, Reflector reflection, Func<string, IAssetName> parseAssetName)
     {
         this.MainContentManager = mainContent;
         this.DisposableContentManager = disposableContent;
@@ -91,12 +92,12 @@ internal class CoreAssetPropagator
 
             if (textureAssets.Any())
             {
-                var defaultLanguage = this.MainContentManager.GetCurrentLanguage();
+                var defaultLanguage = this.MainContentManager.LanguageCode;
 
                 foreach (IAssetName assetName in textureAssets)
                 {
                     var language = assetName.LanguageCode ?? defaultLanguage;
-                    if (language == LocalizedContentManager.LanguageCode.mod && LocalizedContentManager.CurrentModLanguage is null)
+                    if (language == LanguageCode.mod && this.MainContentManager.LanguageModData is null)
                         language = defaultLanguage;
 
                     bool changed = this.PropagateTexture(assetName, language, contentManagers, ignoreWorld);
@@ -144,7 +145,7 @@ internal class CoreAssetPropagator
     /// <param name="ignoreWorld">Whether the in-game world is fully unloaded (e.g. on the title screen), so there's no need to propagate changes into the world.</param>
     /// <returns>Returns whether an asset was loaded.</returns>
     [SuppressMessage("ReSharper", "StringLiteralTypo", Justification = "These deliberately match the asset names.")]
-    private bool PropagateTexture(IAssetName assetName, LocalizedContentManager.LanguageCode language, IList<ISmapiContentManager> contentManagers, bool ignoreWorld)
+    private bool PropagateTexture(IAssetName assetName, LanguageCode language, IList<ISmapiContentManager> contentManagers, bool ignoreWorld)
     {
         bool changed = false;
 
@@ -561,7 +562,7 @@ internal class CoreAssetPropagator
         }
     }
 
-    /// <summary>Update hair style metadata.</summary>
+    /// <summary>Update hairstyle metadata.</summary>
     /// <returns>Returns whether any data was updated.</returns>
     /// <remarks>Derived from the <see cref="Farmer.GetHairStyleMetadataFile"/> and <see cref="Farmer.GetHairStyleMetadata"/>.</remarks>
     private bool UpdateHairData()
@@ -654,7 +655,7 @@ internal class CoreAssetPropagator
     /// <param name="content">The content manager through which to reload the asset.</param>
     /// <returns>Returns whether any data was updated.</returns>
     /// <remarks>Derived from the <see cref="Game1.TranslateFields"/>.</remarks>
-    private bool UpdateStringsFromCsFiles(LocalizedContentManager content)
+    private bool UpdateStringsFromCsFiles(IContentManager content)
     {
         Game1.samBandName = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.2156");
         Game1.elliottBookName = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.2157");

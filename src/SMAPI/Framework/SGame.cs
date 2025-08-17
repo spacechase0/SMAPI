@@ -14,6 +14,7 @@ using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using StardewValley.ContentManagement;
 using StardewValley.Logging;
 using StardewValley.Menus;
 using StardewValley.Minigames;
@@ -89,7 +90,7 @@ internal class SGame : Game1
     /// <summary>Construct a content manager to read game content files.</summary>
     /// <remarks>This must be static because the game accesses it before the <see cref="SGame"/> constructor is called.</remarks>
     [NonInstancedStatic]
-    public static Func<IServiceProvider, string, LocalizedContentManager>? CreateContentManagerImpl;
+    public static Func<IServiceProvider, string, IContentManager>? CreateContentManagerImpl;
 
 
     /*********
@@ -170,7 +171,7 @@ internal class SGame : Game1
     ** Protected methods
     *********/
     /// <inheritdoc />
-    protected internal override LocalizedContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
+    protected internal override IContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
     {
         if (SGame.CreateContentManagerImpl == null)
             throw new InvalidOperationException($"The {nameof(SGame)}.{nameof(SGame.CreateContentManagerImpl)} must be set.");
@@ -180,9 +181,13 @@ internal class SGame : Game1
 
     /// <inheritdoc />
     [SuppressMessage("ReSharper", "ParameterHidesMember")]
-    protected internal override IDisplayDevice CreateDisplayDevice(ContentManager content, GraphicsDevice graphicsDevice)
+    protected internal override IDisplayDevice CreateDisplayDevice()
     {
-        return new SDisplayDevice(content, graphicsDevice);
+        IContentManager rawContentManager = this.CreateContentManager(this.Content.ServiceProvider, this.Content.RootDirectory);
+
+        return rawContentManager is ContentManager contentManager
+            ? new SDisplayDevice(contentManager, this.GraphicsDevice)
+            : throw new InvalidOperationException($"Content managers must extend {nameof(ContentManager)} for compatibility with xTile.");
     }
 
     /// <summary>Initialize the instance when the game starts.</summary>

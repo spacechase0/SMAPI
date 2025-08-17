@@ -14,6 +14,7 @@ using StardewValley;
 using StardewValley.Audio;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Buildings;
+using StardewValley.ContentManagement;
 using StardewValley.Enchantments;
 using StardewValley.GameData;
 using StardewValley.GameData.FishPonds;

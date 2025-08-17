@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using StardewValley;
+using StardewValley.ContentManagement;
 using StardewValley.Menus;
 
 namespace StardewModdingAPI.Framework.StateTracking.Snapshots;
@@ -35,7 +36,7 @@ internal class WatcherSnapshot
     public SnapshotDiff<int> MouseWheelScroll { get; } = new();
 
     /// <summary>Tracks changes to the content locale.</summary>
-    public SnapshotDiff<LocalizedContentManager.LanguageCode> Locale { get; } = new();
+    public SnapshotDiff<LanguageCode> Locale { get; } = new();
 
 
     /*********
