@@ -16,7 +16,7 @@ using StardewValley;
 namespace StardewModdingAPI.Framework.ContentManagers;
 
 /// <summary>A content manager which handles reading files from a SMAPI mod folder with support for unpacked files.</summary>
-internal abstract class BaseContentManager : LocalizedContentManager, IContentManager
+internal abstract class BaseContentManager : LocalizedContentManager, ISmapiContentManager
 {
     /*********
     ** Fields

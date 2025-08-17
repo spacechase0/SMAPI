@@ -6,8 +6,8 @@ using StardewValley;
 
 namespace StardewModdingAPI.Framework.ContentManagers;
 
-/// <summary>A content manager which handles reading files.</summary>
-internal interface IContentManager : IDisposable
+/// <summary>A SMAPI content manager which handles reading files with support for managed mod asset keys.</summary>
+internal interface ISmapiContentManager : IDisposable
 {
     /*********
     ** Accessors

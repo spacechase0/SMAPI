@@ -74,7 +74,7 @@ internal class CoreAssetPropagator
     /// <param name="ignoreWorld">Whether the in-game world is fully unloaded (e.g. on the title screen), so there's no need to propagate changes into the world.</param>
     /// <param name="propagatedAssets">A lookup of asset names to whether they've been propagated.</param>
     /// <param name="changedWarpRoutes">Whether the NPC pathfinding warp route cache was reloaded.</param>
-    public void Propagate(IList<IContentManager> contentManagers, IDictionary<IAssetName, Type> assets, bool ignoreWorld, out IDictionary<IAssetName, bool> propagatedAssets, out bool changedWarpRoutes)
+    public void Propagate(IList<ISmapiContentManager> contentManagers, IDictionary<IAssetName, Type> assets, bool ignoreWorld, out IDictionary<IAssetName, bool> propagatedAssets, out bool changedWarpRoutes)
     {
         // get base name lookup
         propagatedAssets = assets
@@ -144,7 +144,7 @@ internal class CoreAssetPropagator
     /// <param name="ignoreWorld">Whether the in-game world is fully unloaded (e.g. on the title screen), so there's no need to propagate changes into the world.</param>
     /// <returns>Returns whether an asset was loaded.</returns>
     [SuppressMessage("ReSharper", "StringLiteralTypo", Justification = "These deliberately match the asset names.")]
-    private bool PropagateTexture(IAssetName assetName, LocalizedContentManager.LanguageCode language, IList<IContentManager> contentManagers, bool ignoreWorld)
+    private bool PropagateTexture(IAssetName assetName, LocalizedContentManager.LanguageCode language, IList<ISmapiContentManager> contentManagers, bool ignoreWorld)
     {
         bool changed = false;
 
@@ -166,7 +166,7 @@ internal class CoreAssetPropagator
                 newTextures[1] = new Lazy<Texture2D>(() => this.DisposableContentManager.LoadLocalized<Texture2D>(assetNames[1], language, useCache: false));
 
             // apply to content managers
-            foreach (IContentManager contentManager in contentManagers)
+            foreach (ISmapiContentManager contentManager in contentManagers)
             {
                 for (int i = 0; i < assetNames.Length; i++)
                 {

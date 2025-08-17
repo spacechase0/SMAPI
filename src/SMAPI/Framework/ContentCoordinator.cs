@@ -60,7 +60,7 @@ internal class ContentCoordinator : IDisposable
     private readonly Func<IAssetInfo, AssetOperationGroup?> RequestAssetOperations;
 
     /// <summary>The loaded content managers (including the <see cref="MainContentManager"/>).</summary>
-    private readonly List<IContentManager> ContentManagers = [];
+    private readonly List<ISmapiContentManager> ContentManagers = [];
 
     /// <summary>Whether the content coordinator has been disposed.</summary>
     private bool IsDisposed;
@@ -188,7 +188,7 @@ internal class ContentCoordinator : IDisposable
     /// <param name="modName">The mod display name to show in errors.</param>
     /// <param name="rootDirectory">The root directory to search for content (or <c>null</c> for the default).</param>
     /// <param name="gameContentManager">The game content manager used for map tilesheets not provided by the mod.</param>
-    public ModContentManager CreateModContentManager(string name, string modName, string rootDirectory, IContentManager gameContentManager)
+    public ModContentManager CreateModContentManager(string name, string modName, string rootDirectory, ISmapiContentManager gameContentManager)
     {
         return this.ContentManagerLock.InWriteLock(() =>
         {
@@ -334,7 +334,7 @@ internal class ContentCoordinator : IDisposable
         where T : notnull
     {
         // get content manager
-        IContentManager? contentManager = this.ContentManagerLock.InReadLock(() =>
+        ISmapiContentManager? contentManager = this.ContentManagerLock.InReadLock(() =>
             this.ContentManagers.FirstOrDefault(p => p.IsNamespaced && p.Name == contentManagerId)
         );
         if (contentManager == null)
@@ -352,7 +352,7 @@ internal class ContentCoordinator : IDisposable
         where T : notnull
     {
         // get content manager
-        IContentManager? contentManager = this.ContentManagerLock.InReadLock(() =>
+        ISmapiContentManager? contentManager = this.ContentManagerLock.InReadLock(() =>
             this.ContentManagers.FirstOrDefault(p => p.IsNamespaced && p.Name == contentManagerId)
         );
         if (contentManager == null)
@@ -381,14 +381,14 @@ internal class ContentCoordinator : IDisposable
     /// <param name="predicate">Matches the asset keys to invalidate.</param>
     /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
     /// <returns>Returns the invalidated asset names.</returns>
-    public IEnumerable<IAssetName> InvalidateCache(Func<IContentManager, string, Type, bool> predicate, bool dispose = false)
+    public IEnumerable<IAssetName> InvalidateCache(Func<ISmapiContentManager, string, Type, bool> predicate, bool dispose = false)
     {
         // invalidate cache & track removed assets
         IDictionary<IAssetName, Type> invalidatedAssets = new Dictionary<IAssetName, Type>();
         this.ContentManagerLock.InReadLock(() =>
         {
             // cached assets
-            foreach (IContentManager contentManager in this.ContentManagers)
+            foreach (ISmapiContentManager contentManager in this.ContentManagers)
             {
                 foreach ((string key, object asset) in contentManager.GetCachedAssets())
                 {
@@ -498,7 +498,7 @@ internal class ContentCoordinator : IDisposable
         return this.ContentManagerLock.InReadLock(() =>
         {
             List<object> values = [];
-            foreach (IContentManager content in this.ContentManagers.Where(p => !p.IsNamespaced && p.IsLoaded(assetName)))
+            foreach (ISmapiContentManager content in this.ContentManagers.Where(p => !p.IsNamespaced && p.IsLoaded(assetName)))
             {
                 object value = content.LoadExact<object>(assetName, useCache: true);
                 values.Add(value);
@@ -542,7 +542,7 @@ internal class ContentCoordinator : IDisposable
         this.IsDisposed = true;
 
         this.Monitor.Log("Disposing the content coordinator. Content managers will no longer be usable after this point.");
-        foreach (IContentManager contentManager in this.ContentManagers)
+        foreach (ISmapiContentManager contentManager in this.ContentManagers)
             contentManager.Dispose();
         this.ContentManagers.Clear();
         this.MainContentManager = null!; // instance no longer usable
@@ -556,7 +556,7 @@ internal class ContentCoordinator : IDisposable
     *********/
     /// <summary>A callback invoked when a content manager is disposed.</summary>
     /// <param name="contentManager">The content manager being disposed.</param>
-    private void OnDisposing(IContentManager contentManager)
+    private void OnDisposing(ISmapiContentManager contentManager)
     {
         if (this.IsDisposed)
             return;

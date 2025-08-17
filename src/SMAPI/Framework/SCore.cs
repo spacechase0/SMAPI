@@ -1373,7 +1373,7 @@ internal class SCore : IDisposable
     /// <summary>A callback invoked after an asset is fully loaded through a content manager.</summary>
     /// <param name="contentManager">The content manager through which the asset was loaded.</param>
     /// <param name="assetName">The asset name that was loaded.</param>
-    private void OnAssetLoaded(IContentManager contentManager, IAssetName assetName)
+    private void OnAssetLoaded(ISmapiContentManager contentManager, IAssetName assetName)
     {
         if (this.EventManager.AssetReady.HasListeners)
             this.EventManager.AssetReady.Raise(new AssetReadyEventArgs(assetName, assetName.GetBaseAssetName()));
