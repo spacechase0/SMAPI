@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
 
 /// <summary>Maps Stardew Valley 1.5.6's <see cref="Game1"/> methods to their newer form to avoid breaking older mods.</summary>
 /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See remarks on <see cref="ReplaceReferencesRewriter"/> for more info.</remarks>
-public class Game1Facade : Game1, IRewriteFacade
+public class Game1Facade_1_6 : Game1, IRewriteFacade
 {
     /*********
     ** Accessors
@@ -179,7 +179,7 @@ public class Game1Facade : Game1, IRewriteFacade
     /*********
     ** Private methods
     *********/
-    private Game1Facade()
+    private Game1Facade_1_6()
     {
         RewriteHelper.ThrowFakeConstructorCalled();
     }
