@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using Netcode;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.Data;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Networking;
 using StardewModdingAPI.Internal;
@@ -12,6 +15,7 @@ using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Network;
+using StardewValley.Network.Protocol;
 
 namespace StardewModdingAPI.Framework;
 
@@ -55,6 +59,9 @@ internal class SMultiplayer : Multiplayer
 
     /// <summary>The backing field for <see cref="HostPeer"/>.</summary>
     private readonly PerScreen<MultiplayerPeer?> HostPeerImpl = new();
+
+    /// <summary>Container for additional net fields associated with each potential object.</summary>
+    private readonly ConditionalWeakTable<INetObject<NetFields>, AdditionalFields> AdditionalNetFields = new();
 
 
     /*********
@@ -442,6 +449,30 @@ internal class SMultiplayer : Multiplayer
             else
                 this.Monitor.VerboseLog("  Can't send message because no valid connections were found.");
         }
+    }
+
+    public IMultiplayerHelper.GetNetSerializableDelegate<TParent, TNetType>? GetAdditionalNetSerializableDelegateFor<TParent, TNetType>(TParent parent, string id)
+        where TParent : INetObject<NetFields>
+        where TNetType : INetSerializable
+    {
+        if (!ProtocolSummary.TryGetTypeData(typeof(TParent), out ProtocolTypeData? typeData) || typeData == null)
+            return null;
+
+        AdditionalFieldsData additionalFieldsData = AdditionalFieldsData.GetFor(typeData);
+        AdditionalFields additionalFields = this.AdditionalNetFields.GetValue(parent, obj => new(obj, additionalFieldsData));
+        return additionalFields.GetSerializableDelegateFor<TParent, TNetType>(id);
+    }
+
+    public IMultiplayerHelper.GetNetObjectDelegate<TParent, TNetType>? GetAdditionalNetObjectDelegateFor<TParent, TNetType>(TParent parent, string id)
+        where TParent : INetObject<NetFields>
+        where TNetType : INetObject<NetFields>
+    {
+        if (!ProtocolSummary.TryGetTypeData(typeof(TParent), out ProtocolTypeData? typeData) || typeData == null)
+            return null;
+
+        AdditionalFieldsData additionalFieldsData = AdditionalFieldsData.GetFor(typeData);
+        AdditionalFields additionalFields = this.AdditionalNetFields.GetValue(parent, obj => new(obj, additionalFieldsData));
+        return additionalFields.GetObjectDelegateFor<TParent, TNetType>(id);
     }
 
 

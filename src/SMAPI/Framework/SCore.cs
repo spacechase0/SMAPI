@@ -53,6 +53,9 @@ using StardewValley.Objects;
 using StardewValley.SDKs;
 using MiniMonoModHotfix = MonoMod.Utils.MiniMonoModHotfix;
 using PathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
+using StardewValley.Network.Protocol;
+using System.Reflection.Emit;
+using StardewModdingAPI.Framework.Data;
 
 namespace StardewModdingAPI.Framework;
 
@@ -1078,6 +1081,14 @@ internal class SCore : IDisposable
                 if (instance.IsFirstTick && !Context.IsGameLaunched)
                 {
                     Context.IsGameLaunched = true;
+
+                    AssemblyBuilder asmBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("StardewModdingAPI.Framework.AdditionalNetFields"), AssemblyBuilderAccess.RunAndCollect);
+                    ModuleBuilder moduleBuilder = asmBuilder.DefineDynamicModule("MainModule");
+                    foreach (ProtocolTypeData typeData in ProtocolSummary.TypeData.Values)
+                    {
+                        AdditionalFieldsData.GetFor(typeData).FinalizeData(moduleBuilder);
+                    }
+                    ProtocolSummary.BuildSummary();
 
                     if (events.GameLaunched.HasListeners)
                         events.GameLaunched.Raise(new GameLaunchedEventArgs());

@@ -4,12 +4,14 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Netcode;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
 using StardewValley;
 using StardewValley.Events;
 using StardewValley.Menus;
 using StardewValley.Mods;
+using StardewValley.Network;
 
 namespace StardewModdingAPI.Utilities;
 
@@ -165,6 +167,11 @@ public class DelegatingModHooks : ModHooks
     public override Task<T> StartTask<T>(Task<T> task, string id)
     {
         return this.Parent.StartTask<T>(task, id);
+    }
+
+    public override IHaveAdditionalNetFields CreateAdditionalNetFieldsHolder(INetObject<NetFields> parent)
+    {
+        return this.Parent.CreateAdditionalNetFieldsHolder(parent);
     }
 
 

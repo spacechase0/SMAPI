@@ -3,12 +3,14 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Netcode;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Mods;
+using StardewValley.Network;
 
 namespace StardewModdingAPI.Framework;
 
@@ -120,5 +122,10 @@ internal class SModHooks : DelegatingModHooks
             Game1.activeClickableMenu.exitThisMenu();
             return false;
         }
+    }
+
+    public override IHaveAdditionalNetFields CreateAdditionalNetFieldsHolder(INetObject<NetFields> parent)
+    {
+        todo
     }
 }

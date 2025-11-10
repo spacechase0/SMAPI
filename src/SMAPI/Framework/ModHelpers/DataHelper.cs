@@ -1,11 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Galaxy.Api;
+using Netcode;
 using Newtonsoft.Json;
 using StardewModdingAPI.Enums;
+using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.Data;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
+using StardewValley.Network.Protocol;
+using static StardewModdingAPI.IDataHelper;
+using static StardewValley.Menus.ConfirmationDialog;
 
 namespace StardewModdingAPI.Framework.ModHelpers;
 
@@ -136,6 +143,58 @@ internal class DataHelper : BaseHelper, IDataHelper
             File.Delete(path);
     }
 
+    /****
+    ** Object data
+    ****/
+    /// <inheritdoc />
+    public GetFieldDelegate<TParent, TValueType> CreateObjectField<TParent, TValueType>(string name, CreateFieldDelegate<TParent, TValueType> createDelegate, CustomDataFieldBehavior behavior)
+        where TParent : INetObject<NetFields>
+    {
+        if (Context.IsGameLaunched)
+            throw new InvalidOperationException($"Fields cannot be registered after the {nameof(IGameLoopEvents.GameLaunched)} event has been raised");
+
+        if (!ProtocolSummary.TryGetTypeData(typeof(TParent), out var typeData))
+            throw new InvalidOperationException($"The type {typeof(TParent)} has not registered yet.");
+        if (behavior.HasFlag(CustomDataFieldBehavior.Synced) || behavior.HasFlag(CustomDataFieldBehavior.SyncedOptional))
+        {
+            if (!ProtocolSummary.HasTypeData(typeof(TValueType)))
+                throw new InvalidOperationException($"The type {typeof(TValueType)} has not registered yet.");
+        }
+
+        AdditionalFieldsData additionalFieldsData = AdditionalFieldsData.GetFor(typeData);
+        additionalFieldsData.Add< TParent, TValueType >($"{this.Mod.Manifest.UniqueID}/{name}", new FieldData()
+        {
+            Type = typeof(TValueType),
+            Behavior = behavior,
+            CreationDelegate = createDelegate,
+        });
+        return this.GetObjectFieldOnType<TParent, TValueType>(this.Mod.Manifest, name)!;
+    }
+
+    /// <inheritdoc />
+    public void RegisterSerializedObjectProperty<TParent, TValueType>(string name, Func<TValueType> getter, Action<TValueType> setter)
+        where TParent : INetObject<NetFields>
+    {
+        if (Context.IsGameLaunched)
+            throw new InvalidOperationException($"Properties cannot be registered after the {nameof(IGameLoopEvents.GameLaunched)} event has been raised");
+
+        if (!ProtocolSummary.TryGetTypeData(typeof(TParent), out var typeData))
+            throw new InvalidOperationException($"The type {typeof(TParent)} has not registered yet.");
+
+        AdditionalFieldsData additionalFieldsData = AdditionalFieldsData.GetFor(typeData);
+        additionalFieldsData.AddSerializedProperty($"{this.Mod.Manifest.UniqueID}/{name}", getter, setter);
+    }
+
+    /// <inheritdoc />
+    public GetFieldDelegate<TParent, TValueType>? GetObjectFieldOnType<TParent, TValueType>(IManifest owningMod, string name)
+        where TParent : INetObject<NetFields>
+    {
+        if (!ProtocolSummary.TryGetTypeData(typeof(TParent), out var typeData))
+            throw new InvalidOperationException($"The type {typeof(TParent)} has not registered yet.");
+
+        AdditionalFieldsData additionalFieldsData = AdditionalFieldsData.GetFor(typeData);
+        return additionalFieldsData.;
+    }
 
     /*********
     ** Public methods
