@@ -33,7 +33,6 @@ using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Networking;
 using StardewModdingAPI.Framework.Reflection;
-using StardewModdingAPI.Framework.Rendering;
 using StardewModdingAPI.Framework.Serialization;
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
@@ -48,12 +47,11 @@ using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using StardewValley.ContentManagement;
 using StardewValley.Menus;
 using StardewValley.Mods;
 using StardewValley.Objects;
 using StardewValley.SDKs;
-using xTile.Display;
-using LanguageCode = StardewValley.LocalizedContentManager.LanguageCode;
 using MiniMonoModHotfix = MonoMod.Utils.MiniMonoModHotfix;
 using PathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
 
@@ -137,9 +135,6 @@ internal class SCore : IDisposable
 
     /// <summary>Whether the game has initialized for any custom languages from <c>Data/AdditionalLanguages</c>.</summary>
     private bool AreCustomLanguagesInitialized;
-
-    /// <summary>Whether the player just returned to the title screen.</summary>
-    public bool JustReturnedToTitle { get; set; }
 
     /// <summary>The last language set by the game.</summary>
     private (string Locale, LanguageCode Code) LastLanguage { get; set; } = ("", LanguageCode.en);
@@ -250,7 +245,7 @@ internal class SCore : IDisposable
             AppDomain.CurrentDomain.AssemblyResolve += (_, e) => AssemblyLoader.ResolveAssembly(e.Name);
 
             // hook locale event
-            LocalizedContentManager.OnLanguageChange += _ => this.OnLocaleChanged();
+            LocalizedContentManager._onLanguageChange += _ => this.OnLocaleChanged();
 
             // check content integrity
             // we start this before initializing the game, in case content issues crash its initialization
@@ -545,10 +540,6 @@ internal class SCore : IDisposable
     /// <summary>Raised after an instance finishes loading its initial content.</summary>
     private void OnInstanceContentLoaded()
     {
-        // override map display device
-        if (Constants.GameVersion.IsOlderThan("1.6.15"))
-            Game1.mapDisplayDevice = this.GetMapDisplayDevice_OBSOLETE();
-
         // log GPU info
 #if SMAPI_FOR_WINDOWS
         this.Monitor.Log($"Running on GPU: {this.TryGetGraphicsDeviceName() ?? "<unknown>"}");
@@ -665,17 +656,6 @@ internal class SCore : IDisposable
 
         try
         {
-            /*********
-            ** Reapply overrides
-            *********/
-            if (this.JustReturnedToTitle)
-            {
-                if (Game1.mapDisplayDevice is not SDisplayDevice && Constants.GameVersion.IsOlderThan("1.6.15"))
-                    Game1.mapDisplayDevice = this.GetMapDisplayDevice_OBSOLETE();
-
-                this.JustReturnedToTitle = false;
-            }
-
             /*********
             ** Execute commands
             *********/
@@ -1180,7 +1160,7 @@ internal class SCore : IDisposable
 
         // get locale
         string locale = this.ContentCore.GetLocale();
-        LanguageCode languageCode = this.ContentCore.Language;
+        LanguageCode languageCode = this.ContentCore.LanguageCode;
 
         // update core translations
         this.Translator.SetLocale(locale, languageCode);
@@ -1233,7 +1213,6 @@ internal class SCore : IDisposable
                 break;
 
             case LoadStage.None:
-                this.JustReturnedToTitle = true;
                 this.UpdateWindowTitles();
                 break;
 
@@ -1537,7 +1516,7 @@ internal class SCore : IDisposable
     /// <summary>Constructor a content manager to read game content files.</summary>
     /// <param name="serviceProvider">The service provider to use to locate services.</param>
     /// <param name="rootDirectory">The root directory to search for content.</param>
-    private LocalizedContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
+    private IContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
     {
         // Game1._temporaryContent initializing from SGame constructor
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract -- this is the method that initializes it
@@ -1546,7 +1525,6 @@ internal class SCore : IDisposable
             this.ContentCore = new ContentCoordinator(
                 serviceProvider: serviceProvider,
                 rootDirectory: rootDirectory,
-                currentCulture: Thread.CurrentThread.CurrentUICulture,
                 monitor: this.Monitor,
                 multiplayer: this.Multiplayer,
                 reflection: this.Reflection,
@@ -1557,8 +1535,8 @@ internal class SCore : IDisposable
                 getFileLookup: this.GetFileLookup,
                 requestAssetOperations: this.RequestAssetOperations
             );
-            if (this.ContentCore.Language != this.Translator.LocaleEnum)
-                this.Translator.SetLocale(this.ContentCore.GetLocale(), this.ContentCore.Language);
+            if (this.ContentCore.LanguageCode != this.Translator.LocaleEnum)
+                this.Translator.SetLocale(this.ContentCore.GetLocale(), this.ContentCore.LanguageCode);
 
             this.NextContentManagerIsMain = true;
             return this.ContentCore.CreateGameContentManager("Game1._temporaryContent");
@@ -2117,7 +2095,7 @@ internal class SCore : IDisposable
             IMonitor monitor = this.LogManager.GetMonitor(manifest.UniqueID, mod.DisplayName);
             GameContentHelper gameContentHelper = new(this.ContentCore, mod, mod.DisplayName, monitor, this.Reflection);
             IModContentHelper modContentHelper = new ModContentHelper(this.ContentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), this.Reflection);
-            TranslationHelper translationHelper = new(mod, contentCore.GetLocale(), contentCore.Language);
+            TranslationHelper translationHelper = new(mod, contentCore.GetLocale(), contentCore.LanguageCode);
             IContentPack contentPack = new ContentPack(mod.DirectoryPath, manifest, modContentHelper, translationHelper, jsonHelper, fileLookup);
             mod.SetMod(contentPack, monitor, translationHelper);
             this.ModRegistry.Add(mod);
@@ -2186,7 +2164,7 @@ internal class SCore : IDisposable
 
                 // init mod helpers
                 IMonitor monitor = this.LogManager.GetMonitor(manifest.UniqueID, mod.DisplayName);
-                TranslationHelper translationHelper = new(mod, contentCore.GetLocale(), contentCore.Language);
+                TranslationHelper translationHelper = new(mod, contentCore.GetLocale(), contentCore.LanguageCode);
                 IModHelper modHelper;
                 {
                     IModEvents events = new ModEvents(mod, this.EventManager);
@@ -2276,7 +2254,7 @@ internal class SCore : IDisposable
         IMonitor packMonitor = this.LogManager.GetMonitor(packManifest.UniqueID, packManifest.Name);
         GameContentHelper gameContentHelper = new(contentCore, fakeMod, packManifest.Name, packMonitor, this.Reflection);
         IModContentHelper packContentHelper = new ModContentHelper(contentCore, packDirPath, fakeMod, packManifest.Name, gameContentHelper.GetUnderlyingContentManager(), this.Reflection);
-        TranslationHelper packTranslationHelper = new(fakeMod, contentCore.GetLocale(), contentCore.Language);
+        TranslationHelper packTranslationHelper = new(fakeMod, contentCore.GetLocale(), contentCore.LanguageCode);
 
         // add content pack
         IFileLookup fileLookup = this.GetFileLookup(packDirPath);
@@ -2525,13 +2503,6 @@ internal class SCore : IDisposable
         return this.Settings.UseCaseInsensitivePaths
             ? CaseInsensitiveFileLookup.GetCachedFor(rootDirectory)
             : MinimalFileLookup.GetCachedFor(rootDirectory);
-    }
-
-    /// <summary>Get the map display device which applies SMAPI features like tile rotation to loaded maps.</summary>
-    /// <remarks>This only exists for backwards compatibility with Stardew Valley 1.6.14, and will be removed in the next SMAPI update. See <see cref="SGame.CreateDisplayDevice"/> instead.</remarks>
-    private IDisplayDevice GetMapDisplayDevice_OBSOLETE()
-    {
-        return new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
     }
 
     /// <summary>Get the absolute path to the next available log file.</summary>

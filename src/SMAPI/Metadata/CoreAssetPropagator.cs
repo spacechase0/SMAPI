@@ -11,6 +11,7 @@ using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
 using StardewValley;
 using StardewValley.Buildings;
+using StardewValley.ContentManagement;
 using StardewValley.GameData.Characters;
 using StardewValley.Locations;
 using StardewValley.Pathfinding;
@@ -28,7 +29,7 @@ internal class CoreAssetPropagator
     ** Fields
     *********/
     /// <summary>The main content manager through which to reload assets.</summary>
-    private readonly LocalizedContentManager MainContentManager;
+    private readonly IContentManager MainContentManager;
 
     /// <summary>An internal content manager used only for asset propagation. See remarks on <see cref="GameContentManagerForAssetPropagation"/>.</summary>
     private readonly GameContentManagerForAssetPropagation DisposableContentManager;
@@ -59,7 +60,7 @@ internal class CoreAssetPropagator
     /// <param name="multiplayer">The multiplayer instance whose map cache to update.</param>
     /// <param name="reflection">Simplifies access to private code.</param>
     /// <param name="parseAssetName">Parse a raw asset name.</param>
-    public CoreAssetPropagator(LocalizedContentManager mainContent, GameContentManagerForAssetPropagation disposableContent, IMonitor monitor, Multiplayer multiplayer, Reflector reflection, Func<string, IAssetName> parseAssetName)
+    public CoreAssetPropagator(IContentManager mainContent, GameContentManagerForAssetPropagation disposableContent, IMonitor monitor, Multiplayer multiplayer, Reflector reflection, Func<string, IAssetName> parseAssetName)
     {
         this.MainContentManager = mainContent;
         this.DisposableContentManager = disposableContent;
@@ -199,7 +200,7 @@ internal class CoreAssetPropagator
         // This method replaces the textures that would be loaded if you called `contentManager.Load<Texture2D>(assetName)`,
         // which internally maps to `contentManager.LoadLocalized<Texture2D>(assetName, currentLanguage)` regardless of
         // the asset name's language. If the asset name includes a locale, `LoadLocalized` handles that internally.
-        LocalizedContentManager.LanguageCode currentLanguage = LocalizedContentManager.CurrentLanguageCode;
+        LanguageCode currentLanguage = this.MainContentManager.LanguageCode;
 
         // update textures in-place (0 = localized asset name, 1 = base asset name)
         for (int i = 0; i < 2; i++)
@@ -561,7 +562,7 @@ internal class CoreAssetPropagator
         }
     }
 
-    /// <summary>Update hair style metadata.</summary>
+    /// <summary>Update hairstyle metadata.</summary>
     /// <returns>Returns whether any data was updated.</returns>
     /// <remarks>Derived from the <see cref="Farmer.GetHairStyleMetadataFile"/> and <see cref="Farmer.GetHairStyleMetadata"/>.</remarks>
     private bool UpdateHairData()
@@ -654,7 +655,7 @@ internal class CoreAssetPropagator
     /// <param name="content">The content manager through which to reload the asset.</param>
     /// <returns>Returns whether any data was updated.</returns>
     /// <remarks>Derived from the <see cref="Game1.TranslateFields"/>.</remarks>
-    private bool UpdateStringsFromCsFiles(LocalizedContentManager content)
+    private bool UpdateStringsFromCsFiles(IContentManager content)
     {
         Game1.samBandName = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.2156");
         Game1.elliottBookName = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.2157");

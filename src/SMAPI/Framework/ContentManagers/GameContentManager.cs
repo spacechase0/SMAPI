@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,7 +10,7 @@ using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
-using StardewValley;
+using StardewValley.ContentManagement;
 using xTile;
 using xTile.Tiles;
 
@@ -43,15 +42,14 @@ internal class GameContentManager : BaseContentManager
     /// <param name="name">A name for the mod manager. Not guaranteed to be unique.</param>
     /// <param name="serviceProvider">The service provider to use to locate services.</param>
     /// <param name="rootDirectory">The root directory to search for content.</param>
-    /// <param name="currentCulture">The current culture for which to localize content.</param>
     /// <param name="coordinator">The central coordinator which manages content managers.</param>
     /// <param name="monitor">Encapsulates monitoring and logging.</param>
     /// <param name="reflection">Simplifies access to private code.</param>
     /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
     /// <param name="onLoadingFirstAsset">A callback to invoke the first time *any* game content manager loads an asset.</param>
     /// <param name="onAssetLoaded">A callback to invoke when an asset is fully loaded.</param>
-    public GameContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded)
-        : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: false)
+    public GameContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded)
+        : base(name, serviceProvider, rootDirectory, coordinator, monitor, reflection, onDisposing, isNamespaced: false)
     {
         this.OnLoadingFirstAsset = onLoadingFirstAsset;
         this.OnAssetLoaded = onAssetLoaded;
@@ -143,7 +141,7 @@ internal class GameContentManager : BaseContentManager
     }
 
     /// <inheritdoc />
-    public override LocalizedContentManager CreateTemporary()
+    public override IContentManager CreateTemporary()
     {
         return this.Coordinator.CreateGameContentManager("(temporary)");
     }

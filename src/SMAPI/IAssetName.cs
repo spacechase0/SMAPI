@@ -1,5 +1,5 @@
 using System;
-using StardewValley;
+using StardewValley.ContentManagement;
 
 namespace StardewModdingAPI;
 
@@ -19,7 +19,7 @@ public interface IAssetName : IEquatable<IAssetName>
     string? LocaleCode { get; }
 
     /// <summary>The language code matching the <see cref="LocaleCode"/>, if applicable.</summary>
-    LocalizedContentManager.LanguageCode? LanguageCode { get; }
+    LanguageCode? LanguageCode { get; }
 
 
     /*********

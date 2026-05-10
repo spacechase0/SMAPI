@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
-using StardewValley;
+using StardewValley.ContentManagement;
 
 namespace StardewModdingAPI.Framework.ContentManagers;
 
@@ -63,9 +62,6 @@ internal abstract class BaseContentManager : LocalizedContentManager, ISmapiCont
     public string Name { get; }
 
     /// <inheritdoc />
-    public LanguageCode Language => this.GetCurrentLanguage();
-
-    /// <inheritdoc />
     public string FullRootDirectory => Path.Combine(Constants.GamePath, this.RootDirectory);
 
     /// <inheritdoc />
@@ -79,14 +75,13 @@ internal abstract class BaseContentManager : LocalizedContentManager, ISmapiCont
     /// <param name="name">A name for the mod manager. Not guaranteed to be unique.</param>
     /// <param name="serviceProvider">The service provider to use to locate services.</param>
     /// <param name="rootDirectory">The root directory to search for content.</param>
-    /// <param name="currentCulture">The current culture for which to localize content.</param>
     /// <param name="coordinator">The central coordinator which manages content managers.</param>
     /// <param name="monitor">Encapsulates monitoring and logging.</param>
     /// <param name="reflection">Simplifies access to private code.</param>
     /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
     /// <param name="isNamespaced">Whether this content manager handles managed asset keys (e.g. to load assets from a mod folder).</param>
-    protected BaseContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, bool isNamespaced)
-        : base(serviceProvider, rootDirectory, currentCulture)
+    protected BaseContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, bool isNamespaced)
+        : base(serviceProvider, rootDirectory)
     {
         // init
         this.Name = name;
@@ -127,7 +122,7 @@ internal abstract class BaseContentManager : LocalizedContentManager, ISmapiCont
     /// <inheritdoc />
     public sealed override T Load<T>(string assetName)
     {
-        return this.Load<T>(assetName, this.Language);
+        return this.Load<T>(assetName, this.LanguageCode);
     }
 
     /// <inheritdoc />
@@ -150,7 +145,7 @@ internal abstract class BaseContentManager : LocalizedContentManager, ISmapiCont
         where T : notnull
     {
         // ignore locale in English (or if disabled)
-        if (!this.TryLocalizeKeys || language == LocalizedContentManager.LanguageCode.en)
+        if (!this.TryLocalizeKeys || language == LanguageCode.en)
             return this.LoadExact<T>(assetName, useCache: useCache);
 
         // check for localized asset
@@ -210,15 +205,15 @@ internal abstract class BaseContentManager : LocalizedContentManager, ISmapiCont
     /// <inheritdoc />
     public string GetLocale()
     {
-        return LocalizedContentManager.CurrentLanguageString;
+        return this.LanguageString;
     }
 
     /// <inheritdoc />
     public string GetLocale(LanguageCode language)
     {
-        return language == LocalizedContentManager.CurrentLanguageCode
-            ? LocalizedContentManager.CurrentLanguageString
-            : LocalizedContentManager.LanguageCodeString(language);
+        return language == this.LanguageCode
+            ? this.LanguageString
+            : LanguageCodeString(language);
     }
 
     /// <inheritdoc />

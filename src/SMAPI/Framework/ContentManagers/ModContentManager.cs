@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -17,6 +16,7 @@ using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 using StardewValley;
+using StardewValley.ContentManagement;
 using xTile;
 using xTile.Format;
 using xTile.Tiles;
@@ -57,15 +57,14 @@ internal sealed class ModContentManager : BaseContentManager
     /// <param name="serviceProvider">The service provider to use to locate services.</param>
     /// <param name="modName">The mod display name to show in errors.</param>
     /// <param name="rootDirectory">The root directory to search for content.</param>
-    /// <param name="currentCulture">The current culture for which to localize content.</param>
     /// <param name="coordinator">The central coordinator which manages content managers.</param>
     /// <param name="monitor">Encapsulates monitoring and logging.</param>
     /// <param name="reflection">Simplifies access to private code.</param>
     /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
     /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
     /// <param name="fileLookup">A lookup for files within the <paramref name="rootDirectory"/>.</param>
-    public ModContentManager(string name, ISmapiContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, IFileLookup fileLookup)
-        : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: true)
+    public ModContentManager(string name, ISmapiContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, IFileLookup fileLookup)
+        : base(name, serviceProvider, rootDirectory, coordinator, monitor, reflection, onDisposing, isNamespaced: true)
     {
         this.GameContentManager = gameContentManager;
         this.FileLookup = fileLookup;
@@ -134,7 +133,7 @@ internal sealed class ModContentManager : BaseContentManager
 
     /// <inheritdoc />
     [Obsolete($"Temporary {nameof(ModContentManager)}s are unsupported")]
-    public override LocalizedContentManager CreateTemporary()
+    public override IContentManager CreateTemporary()
     {
         throw new NotSupportedException("Can't create a temporary mod content manager.");
     }
@@ -466,7 +465,7 @@ internal sealed class ModContentManager : BaseContentManager
         AssetName contentKey = this.Coordinator.ParseAssetName(this.GetContentKeyForTilesheetImageSource(relativePath), allowLocales: false);
         try
         {
-            this.GameContentManager.LoadLocalized<Texture2D>(contentKey, this.GameContentManager.Language, useCache: true); // no need to bypass cache here, since we're not storing the asset
+            this.GameContentManager.LoadLocalized<Texture2D>(contentKey, this.GameContentManager.LanguageCode, useCache: true); // no need to bypass cache here, since we're not storing the asset
             assetName = contentKey;
             return true;
         }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using StardewValley;
+using StardewValley.ContentManagement;
 
 namespace StardewModdingAPI.Framework;
 
@@ -26,7 +26,7 @@ internal class Translator
     public string Locale { get; private set; }
 
     /// <summary>The game's current language code.</summary>
-    public LocalizedContentManager.LanguageCode LocaleEnum { get; private set; }
+    public LanguageCode LocaleEnum { get; private set; }
 
 
     /*********
@@ -35,14 +35,14 @@ internal class Translator
     /// <summary>Construct an instance.</summary>
     public Translator()
     {
-        this.SetLocale(string.Empty, LocalizedContentManager.LanguageCode.en);
+        this.SetLocale(string.Empty, LanguageCode.en);
     }
 
     /// <summary>Set the current locale and pre-cache translations.</summary>
     /// <param name="locale">The current locale.</param>
     /// <param name="localeEnum">The game's current language code.</param>
     [MemberNotNull(nameof(Translator.ForLocale), nameof(Translator.Locale))]
-    public void SetLocale(string locale, LocalizedContentManager.LanguageCode localeEnum)
+    public void SetLocale(string locale, LanguageCode localeEnum)
     {
         this.Locale = locale.ToLower().Trim();
         this.LocaleEnum = localeEnum;

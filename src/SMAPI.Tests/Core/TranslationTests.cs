@@ -11,6 +11,7 @@ using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Toolkit.Serialization.Models;
 using StardewValley;
+using StardewValley.ContentManagement;
 
 namespace SMAPI.Tests.Core;
 
@@ -56,7 +57,7 @@ public class TranslationTests
 
         // assert
         helper.Locale.Should().Be(TranslationTests.TestLocale);
-        helper.LocaleEnum.Should().Be(LocalizedContentManager.LanguageCode.en);
+        helper.LocaleEnum.Should().Be(LanguageCode.en);
         translationList.Should().NotBeNull().And.BeEmpty();
 
         translation.Should().NotBeNull();
@@ -102,7 +103,7 @@ public class TranslationTests
         var actual = new Dictionary<string, Translation[]?>();
         foreach (string locale in expected.Keys)
         {
-            this.AssertSetLocale(helper, locale, LocalizedContentManager.LanguageCode.en);
+            this.AssertSetLocale(helper, locale, LanguageCode.en);
             actual[locale] = helper.GetTranslations().ToArray();
         }
 
@@ -126,7 +127,7 @@ public class TranslationTests
         var actual = new Dictionary<string, Translation[]>();
         foreach (string locale in expected.Keys)
         {
-            this.AssertSetLocale(helper, locale, LocalizedContentManager.LanguageCode.en);
+            this.AssertSetLocale(helper, locale, LanguageCode.en);
 
             List<Translation> translations = [];
             foreach (Translation translation in expected[locale])
@@ -341,7 +342,7 @@ public class TranslationTests
     /// <param name="helper">The translation helper to change.</param>
     /// <param name="locale">The expected locale.</param>
     /// <param name="localeEnum">The expected game language code.</param>
-    private void AssertSetLocale(TranslationHelper helper, string locale, LocalizedContentManager.LanguageCode localeEnum)
+    private void AssertSetLocale(TranslationHelper helper, string locale, LanguageCode localeEnum)
     {
         helper.SetLocale(locale, localeEnum);
         helper.Locale.Should().Be(locale);
@@ -407,7 +408,7 @@ public class TranslationTests
     /// <param name="data">The translation data to use.</param>
     private TranslationHelper GetSampleHelper(IDictionary<string, IDictionary<string, string>> data)
     {
-        return new TranslationHelper(this.CreateModMetadata(), TranslationTests.TestLocale, LocalizedContentManager.LanguageCode.en).SetTranslations(data);
+        return new TranslationHelper(this.CreateModMetadata(), TranslationTests.TestLocale, LanguageCode.en).SetTranslations(data);
     }
 
     /// <summary>Get the default placeholder text when a translation is missing.</summary>

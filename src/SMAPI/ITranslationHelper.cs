@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using StardewValley;
+using StardewValley.ContentManagement;
 
 namespace StardewModdingAPI;
 
@@ -13,7 +13,7 @@ public interface ITranslationHelper : IModLinked
     string Locale { get; }
 
     /// <summary>The game's current language code.</summary>
-    LocalizedContentManager.LanguageCode LocaleEnum { get; }
+    LanguageCode LocaleEnum { get; }
 
 
     /*********

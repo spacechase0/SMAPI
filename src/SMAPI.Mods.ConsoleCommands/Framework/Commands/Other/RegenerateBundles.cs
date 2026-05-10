@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Netcode;
 using StardewValley;
+using StardewValley.ContentManagement;
 using StardewValley.Network;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other;
@@ -89,17 +90,17 @@ internal class RegenerateBundlesCommand : ConsoleCommand
         netBundleData.Clear();
 
         // regenerate bundles
-        var locale = LocalizedContentManager.CurrentLanguageCode;
+        var locale = Game1.content.LanguageCode;
         try
         {
-            LocalizedContentManager.CurrentLanguageCode = LocalizedContentManager.LanguageCode.en; // the base bundle data needs to be unlocalized (the game will add localized names later)
+            Game1.content.LanguageCode = LanguageCode.en; // the base bundle data needs to be unlocalized (the game will add localized names later)
 
             Game1.bundleType = bundleType;
             Game1.GenerateBundles(bundleType, use_seed: useSeed);
         }
         finally
         {
-            LocalizedContentManager.CurrentLanguageCode = locale;
+            Game1.content.LanguageCode = locale;
         }
 
         monitor.Log("Regenerated bundles and reset bundle progress.", LogLevel.Info);

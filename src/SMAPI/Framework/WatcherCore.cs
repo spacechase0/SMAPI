@@ -5,6 +5,7 @@ using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.StateTracking;
 using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
 using StardewValley;
+using StardewValley.ContentManagement;
 using StardewValley.Locations;
 using StardewValley.Menus;
 
@@ -48,7 +49,7 @@ internal class WatcherCore
     public readonly IValueWatcher<int> MouseWheelScrollWatcher;
 
     /// <summary>Tracks changes to the content locale.</summary>
-    public readonly IValueWatcher<LocalizedContentManager.LanguageCode> LocaleWatcher;
+    public readonly IValueWatcher<LanguageCode> LocaleWatcher;
 
 
     /*********
@@ -67,7 +68,7 @@ internal class WatcherCore
         this.TimeWatcher = WatcherFactory.ForEquatable(nameof(Game1.timeOfDay), () => Game1.timeOfDay);
         this.ActiveMenuWatcher = WatcherFactory.ForReference(nameof(Game1.activeClickableMenu), () => Game1.activeClickableMenu);
         this.LocationsWatcher = new WorldLocationsTracker(gameLocations, MineShaft.activeMines, VolcanoDungeon.activeLevels);
-        this.LocaleWatcher = WatcherFactory.ForGenericEquality(nameof(LocalizedContentManager.CurrentLanguageCode), () => LocalizedContentManager.CurrentLanguageCode);
+        this.LocaleWatcher = WatcherFactory.ForGenericEquality(nameof(LocalizedContentManager.LanguageCode), () => Game1.content.LanguageCode);
         this.Watchers.AddRange([
             this.CursorWatcher,
             this.MouseWheelScrollWatcher,

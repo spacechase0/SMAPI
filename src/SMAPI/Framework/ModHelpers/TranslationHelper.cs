@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using StardewValley;
+using StardewValley.ContentManagement;
 
 namespace StardewModdingAPI.Framework.ModHelpers;
 
@@ -20,7 +20,7 @@ internal class TranslationHelper : BaseHelper, ITranslationHelper
     public string Locale => this.Translator.Locale;
 
     /// <inheritdoc />
-    public LocalizedContentManager.LanguageCode LocaleEnum => this.Translator.LocaleEnum;
+    public LanguageCode LocaleEnum => this.Translator.LocaleEnum;
 
 
     /*********
@@ -30,7 +30,7 @@ internal class TranslationHelper : BaseHelper, ITranslationHelper
     /// <param name="mod">The mod using this instance.</param>
     /// <param name="locale">The initial locale.</param>
     /// <param name="languageCode">The game's current language code.</param>
-    public TranslationHelper(IModMetadata mod, string locale, LocalizedContentManager.LanguageCode languageCode)
+    public TranslationHelper(IModMetadata mod, string locale, LanguageCode languageCode)
         : base(mod)
     {
         this.Translator = new Translator();
@@ -84,7 +84,7 @@ internal class TranslationHelper : BaseHelper, ITranslationHelper
     /// <summary>Set the current locale and pre-cache translations.</summary>
     /// <param name="locale">The current locale.</param>
     /// <param name="localeEnum">The game's current language code.</param>
-    internal void SetLocale(string locale, LocalizedContentManager.LanguageCode localeEnum)
+    internal void SetLocale(string locale, LanguageCode localeEnum)
     {
         this.Translator.SetLocale(locale, localeEnum);
     }

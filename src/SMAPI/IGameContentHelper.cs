@@ -2,7 +2,7 @@ using System;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
-using StardewValley;
+using StardewValley.ContentManagement;
 using xTile;
 
 namespace StardewModdingAPI;
@@ -17,7 +17,7 @@ public interface IGameContentHelper : IModLinked
     string CurrentLocale { get; }
 
     /// <summary>The game's current locale as an enum value.</summary>
-    LocalizedContentManager.LanguageCode CurrentLocaleConstant { get; }
+    LanguageCode CurrentLocaleConstant { get; }
 
 
     /*********

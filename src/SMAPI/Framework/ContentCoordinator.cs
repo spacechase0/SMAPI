@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,6 +17,7 @@ using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using StardewValley.ContentManagement;
 using StardewValley.GameData;
 using xTile;
 
@@ -76,7 +76,7 @@ internal class ContentCoordinator : IDisposable
     private readonly LocalizedContentManager VanillaContentManager;
 
     /// <summary>The language enum values indexed by locale code.</summary>
-    private Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>> LocaleCodes;
+    private Lazy<Dictionary<string, LanguageCode>> LocaleCodes;
 
     /// <summary>The cached asset load/edit operations to apply, indexed by asset name.</summary>
     private readonly TickCacheDictionary<IAssetName, AssetOperationGroup?> AssetOperationsByKey = new();
@@ -89,7 +89,7 @@ internal class ContentCoordinator : IDisposable
     public GameContentManager MainContentManager { get; private set; }
 
     /// <summary>The current language as a constant.</summary>
-    public LocalizedContentManager.LanguageCode Language => this.MainContentManager.Language;
+    public LanguageCode LanguageCode => this.MainContentManager.LanguageCode;
 
     /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
     public string FullRootDirectory { get; }
@@ -105,7 +105,6 @@ internal class ContentCoordinator : IDisposable
     /// <summary>Construct an instance.</summary>
     /// <param name="serviceProvider">The service provider to use to locate services.</param>
     /// <param name="rootDirectory">The root directory to search for content.</param>
-    /// <param name="currentCulture">The current culture for which to localize content.</param>
     /// <param name="monitor">Encapsulates monitoring and logging.</param>
     /// <param name="multiplayer">The multiplayer instance whose map cache to update during asset propagation.</param>
     /// <param name="reflection">Simplifies access to private code.</param>
@@ -115,7 +114,7 @@ internal class ContentCoordinator : IDisposable
     /// <param name="getFileLookup">Get a file lookup for the given directory.</param>
     /// <param name="onAssetsInvalidated">A callback to invoke when any asset names have been invalidated from the cache.</param>
     /// <param name="requestAssetOperations">Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</param>
-    public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Multiplayer multiplayer, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, Func<string, IFileLookup> getFileLookup, Action<IList<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, AssetOperationGroup?> requestAssetOperations)
+    public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, IMonitor monitor, Multiplayer multiplayer, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, Func<string, IFileLookup> getFileLookup, Action<IList<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, AssetOperationGroup?> requestAssetOperations)
     {
         this.GetFileLookup = getFileLookup;
         this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
@@ -131,7 +130,6 @@ internal class ContentCoordinator : IDisposable
                 name: "Game1.content",
                 serviceProvider: serviceProvider,
                 rootDirectory: rootDirectory,
-                currentCulture: currentCulture,
                 coordinator: this,
                 monitor: monitor,
                 reflection: reflection,
@@ -145,7 +143,6 @@ internal class ContentCoordinator : IDisposable
             name: nameof(GameContentManagerForAssetPropagation),
             serviceProvider: serviceProvider,
             rootDirectory: rootDirectory,
-            currentCulture: currentCulture,
             coordinator: this,
             monitor: monitor,
             reflection: reflection,
@@ -157,7 +154,7 @@ internal class ContentCoordinator : IDisposable
 
         this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
         this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, multiplayer, reflection, name => this.ParseAssetName(name, allowLocales: true));
-        this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages: []));
+        this.LocaleCodes = new Lazy<Dictionary<string, LanguageCode>>(() => this.GetLocaleCodes(customLanguages: []));
     }
 
     /// <summary>Get a new content manager which handles reading files from the game content folder with support for interception.</summary>
@@ -170,7 +167,6 @@ internal class ContentCoordinator : IDisposable
                 name: name,
                 serviceProvider: this.MainContentManager.ServiceProvider,
                 rootDirectory: this.MainContentManager.RootDirectory,
-                currentCulture: this.MainContentManager.CurrentCulture,
                 coordinator: this,
                 monitor: this.Monitor,
                 reflection: this.Reflection,
@@ -198,7 +194,6 @@ internal class ContentCoordinator : IDisposable
                 serviceProvider: this.MainContentManager.ServiceProvider,
                 rootDirectory: rootDirectory,
                 modName: modName,
-                currentCulture: this.MainContentManager.CurrentCulture,
                 coordinator: this,
                 monitor: this.Monitor,
                 reflection: this.Reflection,
@@ -214,7 +209,7 @@ internal class ContentCoordinator : IDisposable
     /// <summary>Get the current content locale.</summary>
     public string GetLocale()
     {
-        return this.MainContentManager.GetLocale(LocalizedContentManager.CurrentLanguageCode);
+        return this.MainContentManager.GetLocale(this.MainContentManager.LanguageCode);
     }
 
     /// <summary>Perform any updates needed when the game loads custom languages from <c>Data/AdditionalLanguages</c>.</summary>
@@ -222,7 +217,7 @@ internal class ContentCoordinator : IDisposable
     {
         // update locale cache for custom languages, and load it now (since languages added later won't work)
         var customLanguages = DataLoader.AdditionalLanguages(this.MainContentManager);
-        this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages));
+        this.LocaleCodes = new Lazy<Dictionary<string, LanguageCode>>(() => this.GetLocaleCodes(customLanguages));
         _ = this.LocaleCodes.Value;
     }
 
@@ -265,7 +260,7 @@ internal class ContentCoordinator : IDisposable
         // To avoid issues, we just remove affected assets from the cache here so they'll be reloaded normally.
         // Note that we *must* propagate changes here, otherwise when mods invalidate the cache later to reapply
         // their changes, the assets won't be found in the cache so no changes will be propagated.
-        if (LocalizedContentManager.CurrentLanguageCode != LocalizedContentManager.LanguageCode.en)
+        if (this.MainContentManager.LanguageCode != LanguageCode.en)
             this.InvalidateCache((contentManager, _, _) => contentManager is GameContentManager);
 
         // clear the localized assets lookup (to match the logic in Game1.CleanupReturningToTitle)
@@ -283,7 +278,7 @@ internal class ContentCoordinator : IDisposable
             ? AssetName.Parse(
                 rawName: rawName,
                 parseLocale: allowLocales
-                    ? locale => this.LocaleCodes.Value.TryGetValue(locale, out LocalizedContentManager.LanguageCode langCode) ? langCode : null
+                    ? locale => this.LocaleCodes.Value.TryGetValue(locale, out LanguageCode langCode) ? langCode : null
                     : _ => null
             )
             : throw new ArgumentException("The asset name can't be null or empty.", nameof(rawName));
@@ -524,11 +519,11 @@ internal class ContentCoordinator : IDisposable
         return tilesheets ?? [];
     }
 
-    /// <summary>Get the locale code which corresponds to a language enum (e.g. <c>fr-FR</c> given <see cref="LocalizedContentManager.LanguageCode.fr"/>).</summary>
+    /// <summary>Get the locale code which corresponds to a language enum (e.g. <c>fr-FR</c> given <see cref="LanguageCode.fr"/>).</summary>
     /// <param name="language">The language enum to search.</param>
-    public string? GetLocaleCode(LocalizedContentManager.LanguageCode language)
+    public string? GetLocaleCode(LanguageCode language)
     {
-        if (language == LocalizedContentManager.LanguageCode.mod && LocalizedContentManager.CurrentModLanguage == null)
+        if (language == LanguageCode.mod && this.MainContentManager.LanguageModData == null)
             return null;
 
         return this.MainContentManager.GetLocale(language);
@@ -590,21 +585,21 @@ internal class ContentCoordinator : IDisposable
         return false;
     }
 
-    /// <summary>Get the language enums (like <see cref="LocalizedContentManager.LanguageCode.ja"/>) indexed by locale code (like <c>ja-JP</c>).</summary>
+    /// <summary>Get the language enums (like <see cref="LanguageCode.ja"/>) indexed by locale code (like <c>ja-JP</c>).</summary>
     /// <param name="customLanguages">The custom languages to add to the lookup.</param>
-    private Dictionary<string, LocalizedContentManager.LanguageCode> GetLocaleCodes(IEnumerable<ModLanguage?> customLanguages)
+    private Dictionary<string, LanguageCode> GetLocaleCodes(IEnumerable<ModLanguage?> customLanguages)
     {
-        var map = new Dictionary<string, LocalizedContentManager.LanguageCode>(StringComparer.OrdinalIgnoreCase);
+        var map = new Dictionary<string, LanguageCode>(StringComparer.OrdinalIgnoreCase);
 
         // custom languages
         foreach (ModLanguage? language in customLanguages)
         {
             if (!string.IsNullOrWhiteSpace(language?.LanguageCode))
-                map[language.LanguageCode] = LocalizedContentManager.LanguageCode.mod;
+                map[language.LanguageCode] = LanguageCode.mod;
         }
 
         // vanilla languages (override custom language if they conflict)
-        foreach (LocalizedContentManager.LanguageCode code in Enum.GetValues(typeof(LocalizedContentManager.LanguageCode)))
+        foreach (LanguageCode code in Enum.GetValues(typeof(LanguageCode)))
         {
             string? locale = this.GetLocaleCode(code);
             if (locale != null)

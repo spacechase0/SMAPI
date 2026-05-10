@@ -4,7 +4,7 @@ using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
-using StardewValley;
+using StardewValley.ContentManagement;
 
 namespace StardewModdingAPI.Framework.ModHelpers;
 
@@ -37,7 +37,7 @@ internal class GameContentHelper : BaseHelper, IGameContentHelper
     public string CurrentLocale => this.GameContentManager.GetLocale();
 
     /// <inheritdoc />
-    public LocalizedContentManager.LanguageCode CurrentLocaleConstant => this.GameContentManager.Language;
+    public LanguageCode CurrentLocaleConstant => this.GameContentManager.LanguageCode;
 
 
     /*********

@@ -5,7 +5,7 @@ using NUnit.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Toolkit.Utilities;
-using StardewValley;
+using StardewValley.ContentManagement;
 
 namespace SMAPI.Tests.Core;
 
@@ -23,10 +23,10 @@ internal class AssetNameTests
     [TestCase("SimpleName", "SimpleName", null, null)]
     [TestCase("Data/Achievements", "Data/Achievements", null, null)]
     [TestCase("Characters/Dialogue/Abigail", "Characters/Dialogue/Abigail", null, null)]
-    [TestCase("Characters/Dialogue/Abigail.fr-FR", "Characters/Dialogue/Abigail", "fr-FR", LocalizedContentManager.LanguageCode.fr)]
+    [TestCase("Characters/Dialogue/Abigail.fr-FR", "Characters/Dialogue/Abigail", "fr-FR", LanguageCode.fr)]
     [TestCase("Characters/Dialogue\\Abigail.fr-FR", "Characters/Dialogue/Abigail.fr-FR", null, null)]
-    [TestCase("Characters/Dialogue/Abigail.fr-FR", "Characters/Dialogue/Abigail", "fr-FR", LocalizedContentManager.LanguageCode.fr)]
-    public void Constructor_Valid(string name, string expectedBaseName, string? expectedLocale, LocalizedContentManager.LanguageCode? expectedLanguageCode)
+    [TestCase("Characters/Dialogue/Abigail.fr-FR", "Characters/Dialogue/Abigail", "fr-FR", LanguageCode.fr)]
+    public void Constructor_Valid(string name, string expectedBaseName, string? expectedLocale, LanguageCode? expectedLanguageCode)
     {
         // arrange
         name = PathUtilities.NormalizeAssetName(name);
@@ -96,7 +96,7 @@ internal class AssetNameTests
         mainAssetName = PathUtilities.NormalizeAssetName(mainAssetName);
 
         // act
-        AssetName name = AssetName.Parse(mainAssetName, _ => LocalizedContentManager.LanguageCode.fr);
+        AssetName name = AssetName.Parse(mainAssetName, _ => LanguageCode.fr);
 
         // assert
         return name.IsEquivalentTo(otherAssetName);
@@ -121,7 +121,7 @@ internal class AssetNameTests
         mainAssetName = PathUtilities.NormalizeAssetName(mainAssetName);
 
         // act
-        AssetName name = AssetName.Parse(mainAssetName, _ => LocalizedContentManager.LanguageCode.fr);
+        AssetName name = AssetName.Parse(mainAssetName, _ => LanguageCode.fr);
 
         // assert
         return name.IsEquivalentTo(otherAssetName, useBaseName: true);

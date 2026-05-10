@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Exceptions;
-using StardewValley;
+using StardewValley.ContentManagement;
 
 namespace StardewModdingAPI.Framework.ContentManagers;
 
@@ -15,8 +15,8 @@ internal interface ISmapiContentManager : IDisposable
     /// <summary>A name for the mod manager. Not guaranteed to be unique.</summary>
     string Name { get; }
 
-    /// <summary>The current language as a constant.</summary>
-    LocalizedContentManager.LanguageCode Language { get; }
+    /// <inheritdoc cref="IContentManager.LanguageCode" />
+    LanguageCode LanguageCode { get; }
 
     /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
     string FullRootDirectory { get; }
@@ -39,7 +39,7 @@ internal interface ISmapiContentManager : IDisposable
     /// <param name="assetName">The asset name relative to the loader root directory.</param>
     /// <param name="language">The language for which to load the asset.</param>
     /// <param name="useCache">Whether to read/write the loaded asset to the asset cache.</param>
-    T LoadLocalized<T>(IAssetName assetName, LocalizedContentManager.LanguageCode language, bool useCache)
+    T LoadLocalized<T>(IAssetName assetName, LanguageCode language, bool useCache)
         where T : notnull;
 
     /// <summary>Load an asset through the content pipeline, using the exact asset name without checking for localized variants.</summary>
@@ -59,7 +59,7 @@ internal interface ISmapiContentManager : IDisposable
 
     /// <summary>Get the locale for a language.</summary>
     /// <param name="language">The language.</param>
-    string GetLocale(LocalizedContentManager.LanguageCode language);
+    string GetLocale(LanguageCode language);
 
     /// <summary>Get whether the content manager has already loaded and cached the given asset.</summary>
     /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>

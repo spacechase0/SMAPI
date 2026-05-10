@@ -1,4 +1,5 @@
 using StardewValley;
+using StardewValley.ContentManagement;
 using StardewValley.Menus;
 
 namespace StardewModdingAPI.Framework;
@@ -31,7 +32,7 @@ internal class SChatBox : ChatBox
     }
 
     /// <inheritdoc />
-    public override void receiveChatMessage(long sourceFarmer, int chatKind, LocalizedContentManager.LanguageCode language, string message)
+    public override void receiveChatMessage(long sourceFarmer, int chatKind, LanguageCode language, string message)
     {
         if (chatKind == ChatBox.errorMessage)
         {

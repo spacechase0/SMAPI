@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
@@ -21,8 +20,8 @@ internal class GameContentManagerForAssetPropagation : GameContentManager
     ** Public methods
     *********/
     /// <inheritdoc />
-    public GameContentManagerForAssetPropagation(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded)
-        : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, onLoadingFirstAsset, onAssetLoaded) { }
+    public GameContentManagerForAssetPropagation(string name, IServiceProvider serviceProvider, string rootDirectory, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded)
+        : base(name, serviceProvider, rootDirectory, coordinator, monitor, reflection, onDisposing, onLoadingFirstAsset, onAssetLoaded) { }
 
     /// <inheritdoc />
     public override T LoadExact<T>(IAssetName assetName, bool useCache)

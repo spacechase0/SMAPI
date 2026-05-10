@@ -1,5 +1,5 @@
 using StardewModdingAPI.Framework.ModLoading.Framework;
-using StardewValley;
+using StardewValley.ContentManagement;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
 
