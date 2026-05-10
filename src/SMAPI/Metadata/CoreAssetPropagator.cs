@@ -370,8 +370,6 @@ internal class CoreAssetPropagator
 
             case "data/farmanimals": // FarmAnimal constructor
                 Game1.farmAnimalData = DataLoader.FarmAnimals(content);
-                if (!ignoreWorld)
-                    this.UpdateFarmAnimalData();
                 return true;
 
             case "data/floorsandpaths": // Game1.LoadContent
@@ -549,19 +547,6 @@ internal class CoreAssetPropagator
     /****
     ** Update data methods
     ****/
-    /// <summary>Update the data for matching farm animals.</summary>
-    /// <returns>Returns whether any farm animals were updated.</returns>
-    /// <remarks>Derived from the <see cref="FarmAnimal"/> constructor.</remarks>
-    private void UpdateFarmAnimalData()
-    {
-        foreach (FarmAnimal animal in this.GetFarmAnimals())
-        {
-            var data = animal.GetAnimalData();
-            if (data != null)
-                animal.buildingTypeILiveIn.Value = data.House;
-        }
-    }
-
     /// <summary>Update hairstyle metadata.</summary>
     /// <returns>Returns whether any data was updated.</returns>
     /// <remarks>Derived from the <see cref="Farmer.GetHairStyleMetadataFile"/> and <see cref="Farmer.GetHairStyleMetadata"/>.</remarks>
