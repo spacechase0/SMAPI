@@ -35,7 +35,7 @@ internal class ModContentHelper : BaseHelper, IModContentHelper
     /// <param name="modName">The friendly mod name for use in errors.</param>
     /// <param name="gameContentManager">The game content manager used for map tilesheets not provided by the mod.</param>
     /// <param name="reflection">Simplifies access to private code.</param>
-    public ModContentHelper(ContentCoordinator contentCore, string modFolderPath, IModMetadata mod, string modName, IContentManager gameContentManager, Reflector reflection)
+    public ModContentHelper(ContentCoordinator contentCore, string modFolderPath, IModMetadata mod, string modName, ISmapiContentManager gameContentManager, Reflector reflection)
         : base(mod)
     {
         string managedAssetPrefix = contentCore.GetManagedAssetPrefix(mod.Manifest.UniqueID);

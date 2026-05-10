@@ -18,7 +18,7 @@ internal class GameContentHelper : BaseHelper, IGameContentHelper
     private readonly ContentCoordinator ContentCore;
 
     /// <summary>The underlying game content manager.</summary>
-    private readonly IContentManager GameContentManager;
+    private readonly ISmapiContentManager GameContentManager;
 
     /// <summary>The friendly mod name for use in errors.</summary>
     private readonly string ModName;
@@ -144,7 +144,7 @@ internal class GameContentHelper : BaseHelper, IGameContentHelper
     }
 
     /// <summary>Get the underlying game content manager.</summary>
-    internal IContentManager GetUnderlyingContentManager()
+    internal ISmapiContentManager GetUnderlyingContentManager()
     {
         return this.GameContentManager;
     }

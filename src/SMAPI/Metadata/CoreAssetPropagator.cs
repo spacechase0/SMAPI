@@ -75,7 +75,7 @@ internal class CoreAssetPropagator
     /// <param name="ignoreWorld">Whether the in-game world is fully unloaded (e.g. on the title screen), so there's no need to propagate changes into the world.</param>
     /// <param name="propagatedAssets">A lookup of asset names to whether they've been propagated.</param>
     /// <param name="changedWarpRoutes">Whether the NPC pathfinding warp route cache was reloaded.</param>
-    public void Propagate(IList<IContentManager> contentManagers, IDictionary<IAssetName, Type> assets, bool ignoreWorld, out Dictionary<IAssetName, bool> propagatedAssets, out bool changedWarpRoutes)
+    public void Propagate(IList<ISmapiContentManager> contentManagers, IDictionary<IAssetName, Type> assets, bool ignoreWorld, out Dictionary<IAssetName, bool> propagatedAssets, out bool changedWarpRoutes)
     {
         propagatedAssets = new Dictionary<IAssetName, bool>(assets.Count);
 
@@ -191,7 +191,7 @@ internal class CoreAssetPropagator
     /// <param name="contentManagers">The content managers whose assets to update.</param>
     /// <param name="ignoreWorld">Whether the in-game world is fully unloaded (e.g. on the title screen), so there's no need to propagate changes into the world.</param>
     /// <returns>Returns whether any assets were updated.</returns>
-    private bool PropagateTexture(IAssetName assetName, IList<IContentManager> contentManagers, bool ignoreWorld)
+    private bool PropagateTexture(IAssetName assetName, IList<ISmapiContentManager> contentManagers, bool ignoreWorld)
     {
         bool changed = false;
 
@@ -230,7 +230,7 @@ internal class CoreAssetPropagator
             });
 
             // apply to content managers
-            foreach (IContentManager contentManager in contentManagers)
+            foreach (ISmapiContentManager contentManager in contentManagers)
             {
                 if (contentManager.IsLoaded(name))
                 {

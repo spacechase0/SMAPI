@@ -39,7 +39,7 @@ internal sealed class ModContentManager : BaseContentManager
     private readonly string ModName;
 
     /// <summary>The game content manager used for map tilesheets not provided by the mod.</summary>
-    private readonly IContentManager GameContentManager;
+    private readonly ISmapiContentManager GameContentManager;
 
     /// <summary>A lookup for files within the <see cref="ContentManager.RootDirectory"/>.</summary>
     private readonly IFileLookup FileLookup;
@@ -64,7 +64,7 @@ internal sealed class ModContentManager : BaseContentManager
     /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
     /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
     /// <param name="fileLookup">A lookup for files within the <paramref name="rootDirectory"/>.</param>
-    public ModContentManager(string name, IContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, IFileLookup fileLookup)
+    public ModContentManager(string name, ISmapiContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, IFileLookup fileLookup)
         : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: true)
     {
         this.GameContentManager = gameContentManager;
