@@ -7,14 +7,17 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
 
 /// <summary>Maps Stardew Valley 1.5.6's <see cref="Bush"/> methods to their newer form to avoid breaking older mods.</summary>
 /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See remarks on <see cref="ReplaceReferencesRewriter"/> for more info.</remarks>
-public class BushFacade : Bush, IRewriteFacade
+public class BushFacade_1_6 : Bush, IRewriteFacade
 {
     /*********
     ** Public methods
     *********/
     public void draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch, Vector2 tileLocation, float yDrawOffset)
     {
-        base.draw(spriteBatch, yDrawOffset);
+        if (this.drawOffset.Y != yDrawOffset)
+            this.drawOffset = new Point(this.drawOffset.X, this.drawOffset.Y);
+
+        base.draw(spriteBatch);
     }
 
     public void draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch, Vector2 tileLocation)
@@ -59,7 +62,7 @@ public class BushFacade : Bush, IRewriteFacade
     /*********
     ** Private methods
     *********/
-    private BushFacade()
+    private BushFacade_1_6()
     {
         RewriteHelper.ThrowFakeConstructorCalled();
     }

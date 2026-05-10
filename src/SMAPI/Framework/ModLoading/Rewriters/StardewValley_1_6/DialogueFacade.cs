@@ -5,7 +5,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
 
 /// <summary>Maps Stardew Valley 1.5.6's <see cref="Dialogue"/> methods to their newer form to avoid breaking older mods.</summary>
 /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See remarks on <see cref="ReplaceReferencesRewriter"/> for more info.</remarks>
-public class DialogueFacade : Dialogue, IRewriteFacade
+public class DialogueFacade_1_6 : Dialogue, IRewriteFacade
 {
     /*********
     ** Public methods
@@ -19,7 +19,7 @@ public class DialogueFacade : Dialogue, IRewriteFacade
     /*********
     ** Private methods
     *********/
-    private DialogueFacade()
+    private DialogueFacade_1_6()
         : base(null, null)
     {
         RewriteHelper.ThrowFakeConstructorCalled();

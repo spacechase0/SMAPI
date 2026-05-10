@@ -48,7 +48,7 @@ public class GameLocationFacade : GameLocation, IRewriteFacade
     }
 
     /// <remarks>Changed in Stardew Valley 1.6.9.</remarks>
-    public LightSource getLightSource(int identifier)
+    public LightSource? getLightSource(int identifier)
     {
         return base.getLightSource(identifier.ToString());
     }

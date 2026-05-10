@@ -10,9 +10,11 @@ using StardewModdingAPI.Framework.ModLoading.Finders;
 using StardewModdingAPI.Framework.ModLoading.Rewriters;
 using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5;
 using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
+using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6_16;
 using StardewValley;
 using StardewValley.Audio;
 using StardewValley.BellsAndWhistles;
+using StardewValley.Buffs;
 using StardewValley.Buildings;
 using StardewValley.ContentManagement;
 using StardewValley.Enchantments;
@@ -20,6 +22,7 @@ using StardewValley.GameData;
 using StardewValley.GameData.FishPonds;
 using StardewValley.GameData.FloorsAndPaths;
 using StardewValley.GameData.Movies;
+using StardewValley.GameData.Pets;
 using StardewValley.GameData.SpecialOrders;
 using StardewValley.Internal;
 using StardewValley.Locations;
@@ -28,6 +31,7 @@ using StardewValley.Minigames;
 using StardewValley.Mods;
 using StardewValley.Network;
 using StardewValley.Objects;
+using StardewValley.Objects.Trinkets;
 using StardewValley.Pathfinding;
 using StardewValley.Projectiles;
 using StardewValley.Quests;
@@ -182,7 +186,7 @@ internal class InstructionMetadata
                 // note: types are mapped before members, regardless of the order listed here
                 .MapFacade<AbigailGame, AbigailGameFacade>()
                 .MapFacade<AnimalHouse, AnimalHouseFacade>()
-                .MapFacade(typeof(ArgUtility).FullName!, typeof(ArgUtilityFacade))
+                .MapFacade(typeof(ArgUtility).FullName!, typeof(ArgUtilityFacade_1_6))
                 .MapFacade<BasicProjectile, BasicProjectileFacade>()
                 .MapFacade<BedFurniture, BedFurnitureFacade>()
                 .MapFacade<BoatTunnel, BoatTunnelFacade>()
@@ -190,7 +194,7 @@ internal class InstructionMetadata
                 .MapFacade<BreakableContainer, BreakableContainerFacade>()
                 .MapFacade<Buff, BuffFacade>()
                 .MapFacade<BuffsDisplay, BuffsDisplayFacade>()
-                .MapFacade<Bush, BushFacade>()
+                .MapFacade<Bush, BushFacade_1_6>()
                 .MapFacade<Butterfly, ButterflyFacade>()
                 .MapFacade<Building, BuildingFacade>()
                 .MapFacade<CarpenterMenu, CarpenterMenuFacade>()
@@ -204,23 +208,23 @@ internal class InstructionMetadata
                 .MapFacade<Crop, CropFacade>()
                 .MapFacade<DebuffingProjectile, DebuffingProjectileFacade>()
                 .MapFacade<DelayedAction, DelayedActionFacade>()
-                .MapFacade<Dialogue, DialogueFacade>()
+                .MapFacade<Dialogue, DialogueFacade_1_6>()
                 .MapFacade<DialogueBox, DialogueBoxFacade>()
                 .MapFacade<DiscreteColorPicker, DiscreteColorPickerFacade>()
                 .MapFacade<Event, EventFacade>()
                 .MapFacade<Farm, FarmFacade>()
                 .MapFacade<FarmAnimal, FarmAnimalFacade>()
-                .MapFacade<Farmer, FarmerFacade>()
+                .MapFacade<Farmer, FarmerFacade_1_6>()
                 .MapFacade<FarmerTeam, FarmerTeamFacade>()
                 .MapFacade<FarmerRenderer, FarmerRendererFacade>()
                 .MapFacade<Fence, FenceFacade>()
                 .MapFacade<FishingRod, FishingRodFacade>()
                 .MapFacade<FishPondReward, FishPondRewardFacade>()
                 .MapFacade<FishTankFurniture, FishTankFurnitureFacade>()
-                .MapFacade<Forest, ForestFacade>()
+                .MapFacade<Forest, ForestFacade_1_6>()
                 .MapFacade<Furniture, FurnitureFacade>()
                 .MapFacade<FruitTree, FruitTreeFacade>()
-                .MapFacade<Game1, Game1Facade>()
+                .MapFacade<Game1, Game1Facade_1_6>()
                 .MapFacade<GameLocation, GameLocationFacade>()
                 .MapFacade<GiantCrop, GiantCropFacade>()
                 .MapFacade<Hat, HatFacade>()
@@ -235,14 +239,14 @@ internal class InstructionMetadata
                 .MapFacade<Layer, LayerFacade>()
                 .MapFacade<LibraryMuseum, LibraryMuseumFacade>()
                 .MapFacade<LightSource, LightSourceFacade>()
-                .MapFacade<LocalizedContentManager, LocalizedContentManagerFacade>()
+                .MapFacade<LocalizedContentManager, LocalizedContentManagerFacade_1_6>()
                 .MapType("StardewValley.Buildings.Mill", typeof(Building))
                 .MapFacade<MineShaft, MineShaftFacade>()
                 .MapFacade<Multiplayer, MultiplayerFacade>()
                 .MapFacade<MeleeWeapon, MeleeWeaponFacade>()
                 .MapFacade<NetFields, NetFieldsFacade>()
                 .MapFacade<NetWorldState, NetWorldStateFacade>()
-                .MapFacade<NPC, NpcFacade>()
+                .MapFacade<NPC, NpcFacade_1_6>()
                 .MapFacade<PathFindController, PathFindControllerFacade>()
                 .MapFacade<Projectile, ProjectileFacade>()
                 .MapFacade<ProfileMenu, ProfileMenuFacade>()
@@ -294,7 +298,53 @@ internal class InstructionMetadata
                 .MapMethod("System.Int32 Netcode.NetInt::op_Implicit(Netcode.NetInt)", typeof(ImplicitConversionOperatorsFacade), nameof(ImplicitConversionOperatorsFacade.NetInt_ToInt))
                 .MapMethod("System.String Netcode.NetString::op_Implicit(Netcode.NetString)", typeof(ImplicitConversionOperatorsFacade), nameof(ImplicitConversionOperatorsFacade.NetString_ToString))
                 .MapMethod("System.Int32 StardewValley.Network.NetDirection::op_Implicit(StardewValley.Network.NetDirection)", typeof(ImplicitConversionOperatorsFacade), nameof(ImplicitConversionOperatorsFacade.NetDirection_ToInt))
-                .MapMethod("!0 StardewValley.Network.NetPausableField`3<Microsoft.Xna.Framework.Vector2,Netcode.NetVector2,Netcode.NetVector2>::op_Implicit(StardewValley.Network.NetPausableField`3<!0,!1,!2>)", typeof(NetPausableFieldFacade<Vector2, NetVector2, NetVector2>), nameof(NetPausableFieldFacade<Vector2, NetVector2, NetVector2>.op_Implicit));
+                .MapMethod("!0 StardewValley.Network.NetPausableField`3<Microsoft.Xna.Framework.Vector2,Netcode.NetVector2,Netcode.NetVector2>::op_Implicit(StardewValley.Network.NetPausableField`3<!0,!1,!2>)", typeof(NetPausableFieldFacade<Vector2, NetVector2, NetVector2>), nameof(NetPausableFieldFacade<Vector2, NetVector2, NetVector2>.op_Implicit))
+
+                /****
+                ** Stardew Valley 1.6.16
+                ****/
+                // moved types (FishTankFurniture)
+                .MapType("StardewValley.Objects.FishTankFurniture/FishTankCategories", typeof(StardewValley.Objects.FishTanks.FishTankCategories))
+                .MapType("StardewValley.Objects.TankFish", typeof(StardewValley.Objects.FishTanks.TankFish))
+                .MapType("StardewValley.Objects.TankFish/FishType", typeof(StardewValley.Objects.FishTanks.FishType))
+
+                // moved types (LocalizedContentManager)
+                .MapType("StardewValley.LocalizedContentManager", typeof(LocalizedContentManager))
+                .MapType("StardewValley.LocalizedContentManager/LanguageChangedHandler", typeof(LanguageChangedHandler))
+                .MapType("StardewValley.LocalizedContentManager/LanguageCode", typeof(LanguageCode))
+
+                // generic ItemRegistry.Create<T> changes
+                // For some reason, these aren't handled by the ItemRegistryFacade. We can't list every possible item,
+                // but we can cover the main ones and add others as needed.
+                .MapMethod($"!!0 StardewValley.ItemRegistry::Create<{typeof(Axe).FullName}>(System.String,System.Int32,System.Int32,System.Boolean)", typeof(ItemRegistryFacade), nameof(ItemRegistryFacade.CreateGeneric))
+                .MapMethod($"!!0 StardewValley.ItemRegistry::Create<{typeof(Boots).FullName}>(System.String,System.Int32,System.Int32,System.Boolean)", typeof(ItemRegistryFacade), nameof(ItemRegistryFacade.CreateGeneric))
+                .MapMethod($"!!0 StardewValley.ItemRegistry::Create<{typeof(Chest).FullName}>(System.String,System.Int32,System.Int32,System.Boolean)", typeof(ItemRegistryFacade), nameof(ItemRegistryFacade.CreateGeneric))
+                .MapMethod($"!!0 StardewValley.ItemRegistry::Create<{typeof(Clothing).FullName}>(System.String,System.Int32,System.Int32,System.Boolean)", typeof(ItemRegistryFacade), nameof(ItemRegistryFacade.CreateGeneric))
+                .MapMethod($"!!0 StardewValley.ItemRegistry::Create<{typeof(Furniture).FullName}>(System.String,System.Int32,System.Int32,System.Boolean)", typeof(ItemRegistryFacade), nameof(ItemRegistryFacade.CreateGeneric))
+                .MapMethod($"!!0 StardewValley.ItemRegistry::Create<{typeof(Hat).FullName}>(System.String,System.Int32,System.Int32,System.Boolean)", typeof(ItemRegistryFacade), nameof(ItemRegistryFacade.CreateGeneric))
+                .MapMethod($"!!0 StardewValley.ItemRegistry::Create<{typeof(Ring).FullName}>(System.String,System.Int32,System.Int32,System.Boolean)", typeof(ItemRegistryFacade), nameof(ItemRegistryFacade.CreateGeneric))
+                .MapMethod($"!!0 StardewValley.ItemRegistry::Create<{typeof(SObject).FullName}>(System.String,System.Int32,System.Int32,System.Boolean)", typeof(ItemRegistryFacade), nameof(ItemRegistryFacade.CreateGeneric))
+                .MapMethod($"!!0 StardewValley.ItemRegistry::Create<{typeof(Tool).FullName}>(System.String,System.Int32,System.Int32,System.Boolean)", typeof(ItemRegistryFacade), nameof(ItemRegistryFacade.CreateGeneric))
+                .MapMethod($"!!0 StardewValley.ItemRegistry::Create<{typeof(Trinket).FullName}>(System.String,System.Int32,System.Int32,System.Boolean)", typeof(ItemRegistryFacade), nameof(ItemRegistryFacade.CreateGeneric))
+
+                // general API changes
+                // note: types are mapped before members, regardless of the order listed here
+                .MapFacade("StardewValley.DataLoader", typeof(DataLoaderFacade))
+                .MapFacade<AnimatedSprite, AnimatedSpriteFacade>()
+                .MapFacade(typeof(ArgUtility).FullName!, typeof(ArgUtilityFacade_1_6_16))
+                .MapFacade<BuffManager, BuffManagerFacade>()
+                .MapFacade<Bush, BushFacade_1_6_16>()
+                .MapFacade<Farmer, FarmerFacade_1_6_16>()
+                .MapFacade<Forest, ForestFacade_1_6_16>()
+                .MapFacade<Game1, Game1Facade_1_6_16>()
+                .MapFacade(typeof(ItemRegistry).FullName!, typeof(ItemRegistryFacade))
+                .MapFacade<LocalizedContentManager, LocalizedContentManagerFacade_1_6_16>()
+                .MapFacade<NPC, NpcFacade_1_6_16>()
+                .MapFacade<PetData, PetDataFacade>()
+                .MapFacade<Response, ResponseFacade>()
+                .MapFacade<TemporaryAnimatedSpriteList, TemporaryAnimatedSpriteListFacade>()
+                .MapFacade<TextBox, TextBoxFacade>()
+                .MapFacade<Utility, UtilityFacade_1_6_16>();
 
             // heuristic rewrites
             yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);

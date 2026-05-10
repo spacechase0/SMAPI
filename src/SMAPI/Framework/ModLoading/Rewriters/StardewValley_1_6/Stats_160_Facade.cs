@@ -31,19 +31,13 @@ public class Stats_160_Facade : Stats, IRewriteFacade
     public uint averageBedtime
     {
         get => base.AverageBedtime;
-        set => base.AverageBedtime = value;
+        set => base.OnWentToBed((int)value);
     }
 
     public uint beveragesMade
     {
         get => base.BeveragesMade;
         set => base.BeveragesMade = value;
-    }
-
-    public uint caveCarrotsFound
-    {
-        get => base.CaveCarrotsFound;
-        set => base.CaveCarrotsFound = value;
     }
 
     public uint cheeseMade
@@ -254,12 +248,6 @@ public class Stats_160_Facade : Stats, IRewriteFacade
     {
         get => base.SheepWoolProduced;
         set => base.SheepWoolProduced = value;
-    }
-
-    public uint slimesKilled
-    {
-        get => base.SlimesKilled;
-        set => base.SlimesKilled = value;
     }
 
     public uint stepsTaken

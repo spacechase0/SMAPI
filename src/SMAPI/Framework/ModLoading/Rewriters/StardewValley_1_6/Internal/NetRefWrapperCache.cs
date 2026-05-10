@@ -20,7 +20,7 @@ internal static class NetRefWrapperCache<T>
     *********/
     /// <summary>Get a wrapper for a given value.</summary>
     /// <param name="value">The value to wrap.</param>
-    public static NetRef<T> GetCachedWrapperFor(T value)
+    public static NetRef<T> GetCachedWrapperFor(T? value)
     {
         if (value is null)
             throw new InvalidOperationException($"{nameof(NetRefWrapperCache<T>)} doesn't support wrapping null values.");

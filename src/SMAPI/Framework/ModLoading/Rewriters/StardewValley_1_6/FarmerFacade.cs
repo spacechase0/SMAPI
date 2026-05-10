@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6;
 
 /// <summary>Maps Stardew Valley 1.5.6's <see cref="Farmer"/> methods to their newer form to avoid breaking older mods.</summary>
 /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See remarks on <see cref="ReplaceReferencesRewriter"/> for more info.</remarks>
-public class FarmerFacade : Farmer, IRewriteFacade
+public class FarmerFacade_1_6 : Farmer, IRewriteFacade
 {
     /*********
     ** Accessors
@@ -285,11 +285,10 @@ public class FarmerFacade : Farmer, IRewriteFacade
     }
 
 
-
     /*********
     ** Private methods
     *********/
-    private FarmerFacade()
+    private FarmerFacade_1_6()
     {
         RewriteHelper.ThrowFakeConstructorCalled();
     }

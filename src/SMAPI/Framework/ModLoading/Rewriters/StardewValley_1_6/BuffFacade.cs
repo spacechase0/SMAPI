@@ -34,7 +34,7 @@ public class BuffFacade : Buff, IRewriteFacade
 
     public void addBuff()
     {
-        Game1.player.buffs.Apply(this);
+        Game1.player.buffs.ApplyLocal(this);
     }
 
     public void removeBuff()

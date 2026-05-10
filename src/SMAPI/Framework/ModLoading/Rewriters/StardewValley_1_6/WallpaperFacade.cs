@@ -1,5 +1,6 @@
 using Netcode;
 using StardewModdingAPI.Framework.ModLoading.Framework;
+using StardewValley;
 using StardewValley.GameData;
 using StardewValley.Objects;
 
@@ -18,9 +19,9 @@ public class WallpaperFacade : Wallpaper, IRewriteFacade
     /*********
     ** Public methods
     *********/
-    public virtual ModWallpaperOrFlooring GetModData()
+    public virtual ModWallpaperOrFlooring? GetModData()
     {
-        return base.GetSetData();
+        return ItemRegistry.GetData(base.QualifiedItemId)?.RawData as ModWallpaperOrFlooring;
     }
 
 

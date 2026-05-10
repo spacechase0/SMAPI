@@ -72,7 +72,7 @@ public class UtilityFacade : Utility, IRewriteFacade
             yield return 3;
     }
 
-    public static T GetRandom<T>(List<T> list, Random? random = null)
+    public static T? GetRandom<T>(List<T> list, Random? random = null)
     {
         return (random ?? Game1.random).ChooseFrom(list);
     }
@@ -85,13 +85,17 @@ public class UtilityFacade : Utility, IRewriteFacade
 
         // else replicate old behavior
         NPC? found = null;
-        Utility.ForEachCharacter(npc =>
+        if (Utility.TryParseEnum(season, out Season parsedSeason))
         {
-            if (npc.birthday_Season.Value == season && npc.birthday_Day.Value == day)
-                found = npc;
+            Utility.ForEachCharacter(npc =>
+            {
+                if (npc.Birthday_Season == parsedSeason && npc.Birthday_Day == day)
+                    found = npc;
 
-            return found is null;
-        });
+                return found is null;
+            });
+        }
+
         return found;
     }
 
